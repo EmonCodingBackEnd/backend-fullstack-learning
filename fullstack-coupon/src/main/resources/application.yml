@@ -1,0 +1,24 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.10.1:8848
+        namespace: fullstack-coupon # 命名空间的ID，默认 public
+        group: dev # 默认 DEFAULT_GROUP
+  config:
+    import:
+      - nacos:fullstack-coupon.properties?refresh=true&group=prod
+      - nacos:datasource.yml?refresh=true
+      - nacos:mybatis.yml?refresh=true
+      - nacos:other.yml?refresh=true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+
+# 这里的配置，会低于配置中心的优先级
+coupon:
+  user:
+    age: 15
+
+logging:
+  level:
+    com.coding.fullstack.coupon.dao: debug

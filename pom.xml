@@ -10,10 +10,16 @@
     <description>聚合服务</description>
 
     <modules>
+        <module>fullstack-common</module>
         <module>fullstack-coupon</module>
         <module>fullstack-member</module>
         <module>fullstack-order</module>
         <module>fullstack-product</module>
         <module>fullstack-ware</module>
+        <module>renren-fast</module>
+        <module>renren-generator</module>
+        <module>fullstack-gateway</module>
+        <module>fullstack-thirdparty</module>
+        <module>fullstack-search</module>
     </modules>
 </project>
