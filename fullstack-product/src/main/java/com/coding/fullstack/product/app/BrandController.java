@@ -1,6 +1,7 @@
 package com.coding.fullstack.product.app;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,14 @@ public class BrandController {
         BrandEntity brand = brandService.getById(brandId);
 
         return R.ok().put("brand", brand);
+    }
+
+    @GetMapping("/infos")
+    // @RequiresPermissions("product:brand:info")
+    public R infos(@RequestParam("brandIds") List<Long> brandIds) {
+        List<BrandEntity> brands = brandService.getBrandsById(brandIds);
+
+        return R.ok().put("brands", brands);
     }
 
     /**

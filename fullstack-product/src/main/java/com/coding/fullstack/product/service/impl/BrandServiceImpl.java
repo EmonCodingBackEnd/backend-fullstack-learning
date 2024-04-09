@@ -1,5 +1,6 @@
 package com.coding.fullstack.product.service.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -54,5 +55,10 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
             // TODO: 2024/3/16 更新其他关联
         }
         return true;
+    }
+
+    @Override
+    public List<BrandEntity> getBrandsById(List<Long> brandIds) {
+        return this.baseMapper.selectBatchIds(brandIds);
     }
 }

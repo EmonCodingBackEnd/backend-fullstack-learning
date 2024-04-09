@@ -4,7 +4,7 @@
 
 【谷粒商城】
 
-- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=182&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
+- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=192&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
 【msdq】https://www.bilibili.com/video/BV1ez42197Zd/?spm_id_from=333.1007.tianma.1-1-1.click&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
@@ -52,8 +52,8 @@ PUT product
         "type": "text",
         "analyzer": "ik_smart"
       },
-      "skuPrick": {
-        "type": "keyword"
+      "skuPrice": {
+        "type": "double"
       },
       "skuImg": {
         "type": "keyword",

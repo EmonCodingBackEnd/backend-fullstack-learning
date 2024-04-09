@@ -7,7 +7,9 @@ import lombok.Data;
 /**
  * 封装页面所有可能传递过来的查询条件
  *
- * catalog3Id=225&keyword=小米&sort=saleCount_asc&hasStock=1&skuPrice=1_500&brandId=1&brandId=2&attrs=1_其他&attrs=2_5寸:6寸
+ * GET
+ * http://localhost:12000/list.html?catalog3Id=225&keyword=华为&attrs=6_32GB:64GB&attrs=4_宣白:砚黑:星空黑&sort=saleCount_asc&hasStock=1&skuPrice=
+ * 5000_ &brandId=1&brandId=2&brandId=9
  */
 @Data
 public class SearchParam {
@@ -30,7 +32,7 @@ public class SearchParam {
     private Long catalog3Id; // 3级分类id
     private List<Long> brandId; // 按照品牌进行查询，可以多选
     private String skuPrice; // 价格区间查询
-    private Integer hasStock = 1; // 是否只显示有货
+    private Integer hasStock; // 是否只显示有货
     /**
      * 排序
      *
@@ -45,4 +47,6 @@ public class SearchParam {
     /*
      * 聚合品牌、分类、属性
      */
+
+    private String queryString; // 原始查询条件
 }

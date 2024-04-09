@@ -29,6 +29,12 @@ public class R extends HashMap<String, Object> {
         return this;
     }
 
+    public <T> T getData(String key, TypeReference<T> typeReference) {
+        Object data = get(key); // 默认是java.util.LinkedHashMap
+        String json = JSON.toJSONString(data);
+        return JSON.parseObject(json, typeReference);
+    }
+
     public <T> T getData(TypeReference<T> typeReference) {
         Object data = get("data"); // 默认是java.util.LinkedHashMap
         String json = JSON.toJSONString(data);

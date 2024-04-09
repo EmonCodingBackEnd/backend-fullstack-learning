@@ -11,6 +11,8 @@ import com.coding.fullstack.search.vo.SearchResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -25,7 +27,10 @@ public class SearchController {
      * @return
      */
     @GetMapping({"/list.html"})
-    public String listPage(SearchParam searchParam, Model model) {
+    public String listPage(SearchParam searchParam, Model model, HttpServletRequest request) {
+        String queryString = request.getQueryString();
+        searchParam.setQueryString(queryString);
+
         SearchResult result = searchService.search(searchParam);
         model.addAttribute("result", result);
         // 视图解析器进行拼串

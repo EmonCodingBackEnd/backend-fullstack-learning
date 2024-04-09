@@ -1,6 +1,8 @@
 package com.coding.fullstack.search.service.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,14 +29,20 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import com.coding.common.to.es.SkuEsModel;
+import com.coding.common.utils.R;
 import com.coding.fullstack.search.config.ElasticsearchConfig;
 import com.coding.fullstack.search.constant.EsConstant;
+import com.coding.fullstack.search.feign.ProductFeignService;
 import com.coding.fullstack.search.service.SearchService;
+import com.coding.fullstack.search.vo.AttrResponseVo;
+import com.coding.fullstack.search.vo.BrandEntity;
 import com.coding.fullstack.search.vo.SearchParam;
 import com.coding.fullstack.search.vo.SearchResult;
 
@@ -46,6 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
     private final RestHighLevelClient restHighLevelClient;
+    private final ProductFeignService productFeignService;
 
     @Override
     public SearchResult search(SearchParam searchParam) {
@@ -204,6 +213,11 @@ public class SearchServiceImpl implements SearchService {
             for (SearchHit hit : hits.getHits()) {
                 String sourceAsString = hit.getSourceAsString();
                 SkuEsModel esModel = JSON.parseObject(sourceAsString, SkuEsModel.class);
+                // 高亮
+                if (StringUtils.isNotEmpty(searchParam.getKeyword())) {
+                    HighlightField skuTitle = hit.getHighlightFields().get("skuTitle");
+                    esModel.setSkuTitle(skuTitle.getFragments()[0].string());
+                }
                 esModelList.add(esModel);
             }
         }
@@ -214,6 +228,60 @@ public class SearchServiceImpl implements SearchService {
         searchResult.setPageNum(searchParam.getPageNum());
         searchResult.setTotal(total);
         searchResult.setTotalPages((int)Math.ceil((double)total / EsConstant.PRODUCT_PAGESIZE));
+        List<Integer> pageNavs = new ArrayList<>();
+        for (int i = 1; i <= searchResult.getTotalPages(); i++) {
+            pageNavs.add(i);
+        }
+        searchResult.setPageNavs(pageNavs);
+
+        // 够级属性的面包屑导航数据
+        if (searchParam.getAttrs() != null && searchParam.getAttrs().size() > 0) {
+            List<SearchResult.NavVo> navVos = searchParam.getAttrs().stream().map(attr -> {
+                SearchResult.NavVo navVo = new SearchResult.NavVo();
+                String[] splits = attr.split("_");
+                navVo.setNavValue(splits[1]);
+                searchResult.getAttrIds().add(Long.parseLong(splits[0]));
+                R info = productFeignService.info(Long.parseLong(splits[0]));
+                if (info.getCode() == 0) {
+                    AttrResponseVo attrVo = info.getData("attr", new TypeReference<AttrResponseVo>() {});
+                    navVo.setNavName(attrVo.getAttrName());
+                } else {
+                    navVo.setNavName(splits[0]);
+                }
+                // 取消了这个面包屑以后，我们要跳转到哪个地方，将请求地址的url里面的当前置空
+                String replace = replaceQueryString(searchParam.getQueryString(), attr, "attrs");
+                navVo.setLink("http://search.fsmall.com/list.html?" + replace);
+                return navVo;
+            }).collect(Collectors.toList());
+            searchResult.setNavs(navVos);
+        }
+
+        // 构建品牌和分类的面包屑导航
+        if (searchParam.getBrandId() != null && searchParam.getBrandId().size() > 0) {
+            List<SearchResult.NavVo> navs = searchResult.getNavs();
+            if (navs == null) {
+                navs = new ArrayList<>();
+            }
+
+            SearchResult.NavVo navVo = new SearchResult.NavVo();
+            navVo.setNavName("品牌");
+
+            R info = productFeignService.infos(searchParam.getBrandId());
+            if (info.getCode() == 0) {
+                List<BrandEntity> brands = info.getData("brands", new TypeReference<List<BrandEntity>>() {});
+                StringBuilder buffer = new StringBuilder();
+                String replace = searchParam.getQueryString();
+                for (BrandEntity brand : brands) {
+                    buffer.append(brand.getName()).append(";");
+                    // 取消了这个面包屑以后，我们要跳转到哪个地方，将请求地址的url里面的当前置空
+                    replace = replaceQueryString(replace, brand.getBrandId().toString(), "brandId");
+                }
+                navVo.setNavValue(buffer.toString());
+                navVo.setLink("http://search.fsmall.com/list.html?" + replace);
+                navs.add(navVo);
+            }
+
+        }
 
         // 3、当前所有商品涉及到的所有品牌信息、分类信息、属性信息
         Aggregations aggregations = searchResponse.getAggregations();
@@ -264,5 +332,17 @@ public class SearchServiceImpl implements SearchService {
         searchResult.setAttrs(attrVos);
 
         return searchResult;
+    }
+
+    private String replaceQueryString(String queryString, String value, String key) {
+        String encodeValue;
+        try {
+            encodeValue = URLEncoder.encode(value, "UTF-8");
+            encodeValue = encodeValue.replace("+", "%20");
+            encodeValue = encodeValue.replace("%3B", ";");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        return queryString.replace("&" + key + "=" + encodeValue, "");
     }
 }
