@@ -843,7 +843,8 @@
                     </div>
                 </div>
                 <!--属性-->
-                <div class="JD_pre" th:each="attr:${result.attrs}"  th:if="${!#lists.contains(result.attrIds, attr.attrId)}">
+                <div class="JD_pre" th:each="attr:${result.attrs}"
+                     th:if="${!#lists.contains(result.attrIds, attr.attrId)}">
                     <div class="sl_key">
                         <span th:text="${attr.attrName}">屏幕尺寸：</span>
                     </div>
@@ -1192,7 +1193,7 @@
                                 <a href="#">关注</a>
                             </div>
                             <p class="da">
-                                <a href="#">
+                                <a th:href="|http://item.fsmall.com/${product.skuId}.html|">
                                     <img th:src="${product.skuImg}" class="dim">
                                 </a>
                             </p>

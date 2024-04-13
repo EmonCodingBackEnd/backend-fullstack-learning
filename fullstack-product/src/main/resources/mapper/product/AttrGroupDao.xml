@@ -3,7 +3,7 @@
 
 <mapper namespace="com.coding.fullstack.product.dao.AttrGroupDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.coding.fullstack.product.entity.AttrGroupEntity" id="attrGroupMap">
         <result property="attrGroupId" column="attr_group_id"/>
         <result property="attrGroupName" column="attr_group_name"/>
@@ -12,6 +12,26 @@
         <result property="icon" column="icon"/>
         <result property="catelogId" column="catelog_id"/>
     </resultMap>
+
+    <resultMap id="attrGroupVos" type="com.coding.fullstack.product.vo.SpuItemAttrGroupVo">
+        <id column="group_name" property="groupName"/>
+        <collection property="attrs" ofType="com.coding.fullstack.product.vo.SkuItemBaseAttrVo">
+            <id column="attr_name" property="attrName"/>
+            <result column="attr_value" property="attrValue"/>
+        </collection>
+    </resultMap>
+    <select id="getAttrGroupWithAttrsBySpuId" resultMap="attrGroupVos">
+        select pag.attr_group_name as group_name,
+               pa.attr_name,
+               ppav.attr_value
+        from pms_attr_group pag
+                 left join pms_attr_attrgroup_relation paar on pag.attr_group_id = paar.attr_group_id
+                 left join pms_attr pa on paar.attr_id = pa.attr_id
+                 left join pms_product_attr_value ppav on pa.attr_id = ppav.attr_id
+        where pag.catelog_id = #{catalogId}
+          and paar.attr_id is not null
+          and ppav.spu_id = #{spuId}
+    </select>
 
 
 </mapper>

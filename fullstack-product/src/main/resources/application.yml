@@ -46,3 +46,9 @@ server:
 logging:
   level:
     com.coding.fullstack.product.dao: error
+thread:
+  pool:
+    core-size: 10
+    max-size: 200
+    keep-alive-time: 10
+    queue-size: 100000

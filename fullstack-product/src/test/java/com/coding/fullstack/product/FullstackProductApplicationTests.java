@@ -10,8 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.coding.fullstack.product.dao.AttrGroupDao;
+import com.coding.fullstack.product.dao.SkuSaleAttrValueDao;
 import com.coding.fullstack.product.entity.BrandEntity;
 import com.coding.fullstack.product.service.BrandService;
+import com.coding.fullstack.product.vo.SkuItemSaleAttrVo;
+import com.coding.fullstack.product.vo.SpuItemAttrGroupVo;
 
 @SpringBootTest
 class FullstackProductApplicationTests {
@@ -72,6 +76,24 @@ class FullstackProductApplicationTests {
         bucket.set("redisson");
         String hello = bucket.get();
         System.out.println(hello);
+    }
+
+    @Autowired
+    private AttrGroupDao attrGroupDao;
+
+    @Test
+    void testBaseAttr() {
+        List<SpuItemAttrGroupVo> attrGroupWithAttrsBySpuId = attrGroupDao.getAttrGroupWithAttrsBySpuId(1L, 225L);
+        System.out.println(attrGroupWithAttrsBySpuId);
+    }
+
+    @Autowired
+    private SkuSaleAttrValueDao skuSaleAttrValueDao;
+
+    @Test
+    void testSaleAttr() {
+        List<SkuItemSaleAttrVo> skuItemSaleAttrVos = skuSaleAttrValueDao.getSaleAttrsBySpuId(1L);
+        System.out.println(skuItemSaleAttrVos);
     }
 
 }

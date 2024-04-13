@@ -21,6 +21,7 @@ import com.coding.fullstack.product.entity.AttrGroupEntity;
 import com.coding.fullstack.product.service.AttrGroupService;
 import com.coding.fullstack.product.service.AttrService;
 import com.coding.fullstack.product.vo.AttrGroupWithAttrsVo;
+import com.coding.fullstack.product.vo.SpuItemAttrGroupVo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -66,5 +67,12 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             return attrGroupWithAttrsVo;
         }).collect(Collectors.toList());
         return vos;
+    }
+
+    @Override
+    public List<SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId) {
+        // 1、查询出当前spu对应的所有属性的分组信息以及当前分组下的属性值
+        List<SpuItemAttrGroupVo> list = this.baseMapper.getAttrGroupWithAttrsBySpuId(spuId, catalogId);
+        return list;
     }
 }
