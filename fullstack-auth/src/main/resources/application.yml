@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: fullstack-auth
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.10.1:8848
+  config:
+    import:
+      - nacos:fullstack-auth.properties?refresh=true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  thymeleaf:
+    cache: false
+  redis:
+    host: repo.emon.vip
+    port: 6379
+    password: redis123
+    database: 0
+    timeout: 3000ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      key-prefix: 'fullstack:auth:'
+      use-key-prefix: true
+      cache-null-values: true # 缓存空值，避免缓存穿透
+
+server:
+  port: 20000

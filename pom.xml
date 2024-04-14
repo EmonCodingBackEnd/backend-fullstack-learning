@@ -16,10 +16,19 @@
         <module>fullstack-order</module>
         <module>fullstack-product</module>
         <module>fullstack-ware</module>
-        <module>renren-fast</module>
-        <module>renren-generator</module>
         <module>fullstack-gateway</module>
         <module>fullstack-thirdparty</module>
         <module>fullstack-search</module>
+        <module>fullstack-auth</module>
+        <module>renren-fast</module>
+        <module>renren-generator</module>
     </modules>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+    </properties>
 </project>

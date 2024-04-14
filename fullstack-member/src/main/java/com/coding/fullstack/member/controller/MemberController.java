@@ -3,6 +3,7 @@ package com.coding.fullstack.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.coding.fullstack.member.vo.UserLoginVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import com.coding.common.utils.R;
 import com.coding.fullstack.member.entity.MemberEntity;
 import com.coding.fullstack.member.feign.CouponFeignService;
 import com.coding.fullstack.member.service.MemberService;
+import com.coding.fullstack.member.vo.UserRegistVo;
 
 /**
  * 会员
@@ -34,6 +36,16 @@ public class MemberController {
         memberEntity.setNickname("张三");
         R memberCoupons = couponFeignService.memberCoupons();
         return R.ok().put("member", memberEntity).put("coupons", memberCoupons);
+    }
+
+    @PostMapping("/regist")
+    public R regist(@RequestBody UserRegistVo registVo) {
+        return memberService.regist(registVo);
+    }
+
+    @PostMapping("/login")
+    public R login(@RequestBody UserLoginVo loginVo) {
+        return memberService.login(loginVo);
     }
 
     /**
