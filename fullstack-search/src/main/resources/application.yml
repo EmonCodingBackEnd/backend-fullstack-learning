@@ -19,6 +19,17 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
   thymeleaf:
     cache: false
+  redis:
+    host: repo.emon.vip
+    port: 6379
+    password: redis123
+    database: 0
+    timeout: 3000ms
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session
+      flush-mode: on_save
 
 #mybatis-plus:
 #  mapper-locations: classpath:mapper/**/*.xml
@@ -30,6 +41,9 @@ spring:
 
 server:
   port: 12000
+  servlet:
+    session:
+      timeout: 10m
 #logging:
 #  level:
 #    com.coding.fullstack.product.dao: debug

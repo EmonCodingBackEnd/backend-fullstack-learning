@@ -92,10 +92,13 @@
             </b>
             <ul>
                 <li>
-                    <a href="http://auth.fsmall.com/login.html">你好，请登录</a>
+                    <a th:if="${!#strings.isEmpty(session.loginUser)}">欢迎：[[${session.loginUser.nickname}]]</a>
+                    <a href="http://auth.fsmall.com/login.html"
+                       th:if="${#strings.isEmpty(session.loginUser)}">你好，请登录</a>
                 </li>
                 <li>
-                    <a href="http://auth.fsmall.com/reg.html" class="li_2">免费注册</a>
+                    <a href="http://auth.fsmall.com/reg.html" th:if="${#strings.isEmpty(session.loginUser)}"
+                       class="li_2">免费注册</a>
                 </li>
                 <span>|</span>
                 <li>

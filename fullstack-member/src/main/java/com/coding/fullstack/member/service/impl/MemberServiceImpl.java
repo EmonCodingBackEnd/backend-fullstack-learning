@@ -1,5 +1,6 @@
 package com.coding.fullstack.member.service.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,8 +20,7 @@ import com.coding.fullstack.member.dao.MemberLevelDao;
 import com.coding.fullstack.member.entity.MemberEntity;
 import com.coding.fullstack.member.entity.MemberLevelEntity;
 import com.coding.fullstack.member.service.MemberService;
-import com.coding.fullstack.member.vo.UserLoginVo;
-import com.coding.fullstack.member.vo.UserRegistVo;
+import com.coding.fullstack.member.vo.*;
 
 import lombok.RequiredArgsConstructor;
 
@@ -55,6 +55,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
 
         memberEntity.setMobile(registVo.getPhone());
         memberEntity.setUsername(registVo.getUsername());
+        memberEntity.setNickname(registVo.getUsername());
 
         // 秘钥要进行加密存储
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -89,6 +90,42 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(password, memberEntity.getPassword())) {
             return R.error("用户名或密码错误！");
+        }
+        return R.ok().setData(memberEntity);
+    }
+
+    @Override
+    public R login(SocialGiteeUser loginVo) {
+        List<SocialGitterEmailInfo> emailInfos = loginVo.getEmailInfos();
+        String email = emailInfos.get(0).getEmail();
+        SocialGitterBasicInfo socialGitterBasicInfo = loginVo.getSocialGitterBasicInfo();
+        String name = socialGitterBasicInfo.getName();
+        String login = socialGitterBasicInfo.getLogin();
+        Integer id = socialGitterBasicInfo.getId();
+        String avatarUrl = socialGitterBasicInfo.getAvatarUrl();
+        // 当前社交用户是否已经注册过
+        MemberEntity memberEntity = this.baseMapper.selectOne(Wrappers.lambdaQuery(MemberEntity.class)
+            .eq(MemberEntity::getSocialUid, id.toString()).eq(MemberEntity::getSocialType, "gitee"));
+        if (memberEntity != null) {
+            MemberEntity member = new MemberEntity();
+            member.setId(memberEntity.getId());
+            member.setNickname(name);
+            member.setEmail(email);
+            member.setHeader(avatarUrl);
+            this.baseMapper.updateById(member);
+            memberEntity = this.baseMapper.selectById(memberEntity.getId());
+        } else {
+            MemberEntity member = new MemberEntity();
+            // 设置默认会员等级
+            MemberLevelEntity defaultLevel = memberLevelDao.getDefaultLevel();
+            member.setLevelId(defaultLevel.getId());
+            member.setNickname(name);
+            member.setEmail(email);
+            member.setHeader(avatarUrl);
+            member.setSocialUid(id.toString());
+            member.setSocialType("gitee");
+            this.baseMapper.insert(member);
+            memberEntity = this.baseMapper.selectById(member.getId());
         }
         return R.ok().setData(memberEntity);
     }

@@ -32,6 +32,11 @@ spring:
       key-prefix: 'fullstack:product:'
       use-key-prefix: true
       cache-null-values: true # 缓存空值，避免缓存穿透
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session
+      flush-mode: on_save
 
 mybatis-plus:
   mapper-locations: classpath:mapper/**/*.xml
@@ -43,6 +48,10 @@ mybatis-plus:
 
 server:
   port: 10000
+  servlet:
+    session:
+      timeout: 10m
+
 logging:
   level:
     com.coding.fullstack.product.dao: error

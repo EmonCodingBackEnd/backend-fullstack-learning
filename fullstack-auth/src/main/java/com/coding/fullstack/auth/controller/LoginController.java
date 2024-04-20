@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -17,9 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.alibaba.fastjson2.TypeReference;
 import com.coding.common.constant.AuthConstant;
 import com.coding.common.exception.BizCodeEnum;
 import com.coding.common.utils.R;
+import com.coding.common.vo.MemberEntityVo;
 import com.coding.fullstack.auth.feign.MemberFeignService;
 import com.coding.fullstack.auth.feign.ThirdpartyFeignService;
 import com.coding.fullstack.auth.vo.UserLoginVo;
@@ -45,11 +48,16 @@ public class LoginController {
      * @return
      */
 
-    /*@GetMapping("/login.html")
-    public String login() {
+    @GetMapping("/login.html")
+    public String login(HttpSession session) {
+        Object attribute = session.getAttribute(AuthConstant.LOGIN_USER);
+        if (attribute != null) {
+            return "redirect:http://fsmall.com";
+        }
         return "login";
     }
-    
+
+    /*
     @GetMapping("/reg.html")
     public String reg() {
         return "reg";
@@ -126,8 +134,8 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String login(@Valid UserLoginVo loginVo, BindingResult bindingResult,
-                        RedirectAttributes attributes) {
+    public String login(@Valid UserLoginVo loginVo, BindingResult bindingResult, RedirectAttributes attributes,
+        HttpSession session) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors()
@@ -138,8 +146,7 @@ public class LoginController {
 
         R login = memberFeignService.login(loginVo);
         if (login.getCode() == 0) {
-            // TODO: 2024/4/14 登录成功后的处理
-            // attributes.addFlashAttribute("user", login.getData(MemEnt))
+            session.setAttribute(AuthConstant.LOGIN_USER, login.getData(new TypeReference<MemberEntityVo>() {}));
             return "redirect:http://fsmall.com";
         } else {
             Map<String, String> errors = new HashMap<>();

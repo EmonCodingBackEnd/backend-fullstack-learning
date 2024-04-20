@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.coding.common.utils.PageUtils;
 import com.coding.common.utils.R;
 import com.coding.fullstack.member.entity.MemberEntity;
+import com.coding.fullstack.member.vo.SocialGiteeUser;
 import com.coding.fullstack.member.vo.UserLoginVo;
 import com.coding.fullstack.member.vo.UserRegistVo;
 
@@ -26,5 +27,6 @@ public interface MemberService extends IService<MemberEntity> {
     boolean checkUsernameUnique(String username);
 
     R login(UserLoginVo loginVo);
+    R login(SocialGiteeUser loginVo);
 }
 

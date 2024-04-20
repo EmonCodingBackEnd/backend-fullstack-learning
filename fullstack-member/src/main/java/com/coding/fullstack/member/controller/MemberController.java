@@ -3,7 +3,6 @@ package com.coding.fullstack.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.coding.fullstack.member.vo.UserLoginVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +11,8 @@ import com.coding.common.utils.R;
 import com.coding.fullstack.member.entity.MemberEntity;
 import com.coding.fullstack.member.feign.CouponFeignService;
 import com.coding.fullstack.member.service.MemberService;
+import com.coding.fullstack.member.vo.SocialGiteeUser;
+import com.coding.fullstack.member.vo.UserLoginVo;
 import com.coding.fullstack.member.vo.UserRegistVo;
 
 /**
@@ -45,6 +46,11 @@ public class MemberController {
 
     @PostMapping("/login")
     public R login(@RequestBody UserLoginVo loginVo) {
+        return memberService.login(loginVo);
+    }
+
+    @PostMapping("/socialLogin")
+    public R login(@RequestBody SocialGiteeUser loginVo) {
         return memberService.login(loginVo);
     }
 

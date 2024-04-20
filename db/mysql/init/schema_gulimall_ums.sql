@@ -78,6 +78,8 @@ create table ums_member
     growth               int comment '成长值',
     status               tinyint comment '启用状态',
     create_time          datetime comment '注册时间',
+    social_uid           varchar(100) comment '社交账号ID',
+    social_type          varchar(10) comment '社交账号类型[gitee,weibo,weixin,qq]',
     primary key (id)
 );
 

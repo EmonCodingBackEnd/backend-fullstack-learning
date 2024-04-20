@@ -64,14 +64,16 @@
                     <li class="top_1">
                         <img src="/static/login/JD_img/user_03.png" class="err_img1"/>
                         <input type="text" name="loginacct" placeholder=" 邮箱/用户名/已验证手机" class="user"/>
-                        <div class="tips" th:text="${errors!=null?(#maps.containsKey(errors,'loginacct')?errors.loginacct:''):''}">
+                        <div class="tips"
+                             th:text="${errors!=null?(#maps.containsKey(errors,'loginacct')?errors.loginacct:''):''}">
 
                         </div>
                     </li>
                     <li>
                         <img src="/static/login/JD_img/user_06.png" class="err_img2"/>
                         <input type="password" name="password" placeholder=" 密码" class="password"/>
-                        <div class="tips" th:text="${errors!=null?(#maps.containsKey(errors,'password')?errors.password:''):''}">
+                        <div class="tips"
+                             th:text="${errors!=null?(#maps.containsKey(errors,'password')?errors.password:''):''}">
 
                         </div>
                     </li>
@@ -94,9 +96,16 @@
                 </li>
                 <li class="f4"> |</li>
                 <li>
-                    <a href="">
+                    <a href="#">
                         <img src="/static/login/JD_img/weixin.png"/>
                         <span>微信</span>
+                    </a>
+                </li>
+                <li class="f4"> |</li>
+                <li>
+                    <a href="https://gitee.com/oauth/authorize?client_id=af59a1f46c54ae472128d69f78da231cb95028bea81490063715f8ef947139d7&redirect_uri=http://auth.fsmall.com/oauth2.0/gitee/callback&response_type=code">
+                        <img src="/static/login/JD_img/gitee.svg" style="width: 18px;height:18px;"/>
+                        <span>Gitee</span>
                     </a>
                 </li>
             </ul>

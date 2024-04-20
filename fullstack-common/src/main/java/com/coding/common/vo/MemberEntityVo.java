@@ -1,10 +1,7 @@
-package com.coding.fullstack.member.entity;
+package com.coding.common.vo;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.Data;
 
@@ -16,14 +13,12 @@ import lombok.Data;
  * @date 2024-03-02 17:45:16
  */
 @Data
-@TableName("ums_member")
-public class MemberEntity implements Serializable {
+public class MemberEntityVo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * id
 	 */
-	@TableId
 	private Long id;
 	/**
 	 * 会员等级id

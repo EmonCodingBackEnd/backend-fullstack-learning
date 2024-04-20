@@ -64,10 +64,11 @@
         </b>
         <ul>
             <li>
-                <a href="#" class="li_2">你好，请登录</a>
+                <a href="http://auth.fsmall.com/login.html" class="li_2" th:if="${#strings.isEmpty(session.loginUser)}">你好，请登录</a>
+                <a class="li_2" th:if="${!#strings.isEmpty(session.loginUser)}">欢迎：[[${session.loginUser.nickname}]]</a>
             </li>
             <li>
-                <a href="#">免费注册</a>
+                <a href="http://auth.fsmall.com/reg.html" th:if="${#strings.isEmpty(session.loginUser)}">免费注册</a>
             </li>
             <span>|</span>
             <li>
