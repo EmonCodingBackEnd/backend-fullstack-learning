@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: fullstack-sso-client
+  thymeleaf:
+    cache: false
+
+server:
+  port: 8081
+
+sso:
+  server:
+    url:
+      login: http://ssoserver.com:8080/login.html
+      info: http://ssoserver.com:8080/userInfo

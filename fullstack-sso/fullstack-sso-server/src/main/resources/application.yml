@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: fullstack-sso-server
+  thymeleaf:
+    cache: false
+  redis:
+    host: repo.emon.vip
+    port: 6379
+    password: redis123
+    database: 0
+    timeout: 3000ms
+
+server:
+  port: 8080

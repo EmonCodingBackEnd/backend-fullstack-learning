@@ -2,34 +2,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
     <groupId>com.coding.fullstack</groupId>
-    <artifactId>fullstack</artifactId>
+    <artifactId>fullstack-sso</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>fullstack</name>
-    <description>聚合服务</description>
-
-    <modules>
-        <module>fullstack-common</module>
-        <module>fullstack-coupon</module>
-        <module>fullstack-member</module>
-        <module>fullstack-order</module>
-        <module>fullstack-product</module>
-        <module>fullstack-ware</module>
-        <module>fullstack-gateway</module>
-        <module>fullstack-thirdparty</module>
-        <module>fullstack-search</module>
-        <module>fullstack-auth</module>
-        <module>renren-fast</module>
-        <module>renren-generator</module>
-        <module>fullstack-sso</module>
-    </modules>
-
+    <name>fullstack-sso</name>
+    <description>单店登录</description>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <spring-cloud.version>2021.0.9</spring-cloud.version>
     </properties>
+
+    <modules>
+        <module>fullstack-sso-server</module>
+        <module>fullstack-sso-client-test</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+        </dependency>
+    </dependencies>
 </project>
