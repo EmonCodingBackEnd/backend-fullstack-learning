@@ -24,8 +24,8 @@
     </properties>
 
     <modules>
-        <module>fullstack-sso-server</module>
-        <module>fullstack-sso-client-test</module>
+        <module>fullstack-sso-server</module><!--通过 ssoserver.com 域名访问-->
+        <module>fullstack-sso-client-test</module><!--通过 client1.com/client2.com 域名访问-->
     </modules>
 
     <dependencies>

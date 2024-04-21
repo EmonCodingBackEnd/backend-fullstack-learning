@@ -14,15 +14,16 @@
         <module>fullstack-coupon</module>
         <module>fullstack-member</module>
         <module>fullstack-order</module>
-        <module>fullstack-product</module>
+        <module>fullstack-product</module><!--通过 fsmall.com/item.fsmall.com 域名访问-->
         <module>fullstack-ware</module>
         <module>fullstack-gateway</module>
         <module>fullstack-thirdparty</module>
-        <module>fullstack-search</module>
-        <module>fullstack-auth</module>
+        <module>fullstack-search</module><!--通过 search.fsmall.com 域名访问-->
+        <module>fullstack-auth</module><!--通过 auth.fsmall.com 域名访问-->
+        <module>fullstack-sso</module>
+        <module>fullstack-cart</module><!--通过 cart.fsmall.com 域名访问-->
         <module>renren-fast</module>
         <module>renren-generator</module>
-        <module>fullstack-sso</module>
     </modules>
 
     <properties>

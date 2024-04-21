@@ -1,4 +1,4 @@
-package com.coding.fullstack.product.config;
+package com.coding.fullstack.cart.config;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -8,9 +8,8 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// @EnableConfigurationProperties(ThreadPoolConfigProperties.class)
 @Configuration
-public class MyThreadConfig {
+public class ThreadPoolConfig {
 
     @Bean
     public ThreadPoolExecutor threadPoolExecutor(ThreadPoolConfigProperties pool) {

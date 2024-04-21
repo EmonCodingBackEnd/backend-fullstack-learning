@@ -273,7 +273,6 @@
             <div class="nav_down">
                 <ul class="nav_down_ul">
                     <li class="nav_down_ul_1" style="width: 24%;float: left;"><a href="javascript:;">全部商品分类</a>
-
                     </li>
                     <li class="ul_li"><a href="javascript:;">服装城</a></li>
                     <li class="ul_li"><a href="javascript:;">美妆馆</a></li>
@@ -624,7 +623,7 @@
 
                 <div class="box-btns clear">
                     <div class="box-btns-one">
-                        <input type="text" name="" id="" value="1"/>
+                        <input type="text" name="" id="numInput" value="1"/>
                         <div class="box-btns-one1">
 
                             <div>
@@ -641,8 +640,8 @@
                         </div>
                     </div>
                     <div class="box-btns-two">
-                        <a href="../商品分类\index.html">
-                            立即预约
+                        <a href="#" id="addToCart" th:attr="skuId=${item.info.skuId}">
+                            加入购物车
                         </a>
                     </div>
                     <div class="box-btns-three">
@@ -1557,6 +1556,12 @@
         });
         $(".sku_attr_value").parent().css({'border': 'solid 1px #CCC'});
         $('a[class="sku_attr_value checked"]').parent().css({'border': 'solid 1px red'});
+
+        $("#addToCart").click(function () {
+            var skuId = $(this).attr("skuId");
+            var num = $("#numInput").val();
+            window.location.href = "http://cart.fsmall.com/addToCart?skuId=" + skuId + "&num=" + num;
+        });
     });
 </script>
 </html>
