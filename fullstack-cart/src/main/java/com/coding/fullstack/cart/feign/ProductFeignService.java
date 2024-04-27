@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.coding.common.utils.R;
 
+import java.math.BigDecimal;
+
 @FeignClient("fullstack-product")
 public interface ProductFeignService {
 
@@ -14,5 +16,8 @@ public interface ProductFeignService {
 
     @GetMapping("/product/skusaleattrvalue/stringlist/{skuId}")
     R getSkuSaleAttrValues(@PathVariable("skuId") Long skuId);
+
+    @GetMapping("product/skuinfo/{skuId}/price")
+    BigDecimal getPrice(@PathVariable("skuId") Long skuId);
 
 }

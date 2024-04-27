@@ -1,5 +1,6 @@
 package com.coding.fullstack.cart.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -176,5 +177,24 @@ public class CartServiceImpl implements CartService {
     public void deleteItem(Long skuId) {
         BoundHashOperations<String, Object, Object> cartOps = getCartOps();
         cartOps.delete(skuId.toString());
+    }
+
+    @Override
+    public List<CartItem> getUserCartItems() {
+        UserInfoDto userInfoDto = CartInterceptor.threadLocal.get();
+        if (userInfoDto.getUserId() == null) {
+            return null;
+        } else {
+            String cartKey = CART_PREFIX + userInfoDto.getUserId();
+            List<CartItem> collect = getCartItems(cartKey);
+            return collect != null ? collect.stream().filter(CartItem::getCheck).map(item -> {
+                // 更新为最新价格
+                BigDecimal price = productFeignService.getPrice(item.getSkuId());
+                if (price != null) {
+                    item.setPrice(price);
+                }
+                return item;
+            }).collect(Collectors.toList()) : null;
+        }
     }
 }

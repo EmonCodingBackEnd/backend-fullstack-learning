@@ -1,5 +1,6 @@
 package com.coding.fullstack.product.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -8,6 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -129,5 +131,11 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         allOf.get();
 
         return skuItemVo;
+    }
+
+    @Override
+    public BigDecimal getPrice(Long skuId) {
+        SkuInfoEntity byId = this.getById(skuId);
+        return byId != null ? byId.getPrice() : null;
     }
 }

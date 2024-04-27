@@ -1,4 +1,4 @@
--- 优惠券
+-- 优惠券-sale
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS gulimall_sms DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

@@ -1,4 +1,4 @@
--- 仓储
+-- 仓储-ware
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS gulimall_wms DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

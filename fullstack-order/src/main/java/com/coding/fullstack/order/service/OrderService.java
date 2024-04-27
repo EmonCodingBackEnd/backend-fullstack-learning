@@ -3,8 +3,10 @@ package com.coding.fullstack.order.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.coding.common.utils.PageUtils;
 import com.coding.fullstack.order.entity.OrderEntity;
+import com.coding.fullstack.order.vo.OrderConfirmVo;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 订单
@@ -16,5 +18,11 @@ import java.util.Map;
 public interface OrderService extends IService<OrderEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
-}
 
+    /**
+     * 返回订单确认页需要用的数据
+     * 
+     * @return
+     */
+    OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException;
+}
