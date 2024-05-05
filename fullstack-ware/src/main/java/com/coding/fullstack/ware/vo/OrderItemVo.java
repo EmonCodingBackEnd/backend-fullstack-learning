@@ -1,4 +1,4 @@
-package com.coding.fullstack.order.vo;
+package com.coding.fullstack.ware.vo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,4 +18,7 @@ public class OrderItemVo {
     private Boolean hasStock = false;
     private BigDecimal weight = new BigDecimal("0.99");
 
+    public BigDecimal getTotalPrice() {
+        return price.multiply(new BigDecimal(count));
+    }
 }

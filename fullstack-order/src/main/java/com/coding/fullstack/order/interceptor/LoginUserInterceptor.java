@@ -11,9 +11,12 @@ import org.springframework.web.servlet.ModelAndView;
 import com.coding.common.constant.AuthConstant;
 import com.coding.common.vo.MemberEntityVo;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 在执行目标方法之前，判断用户的登录状态。并封装传递给controller目标方法的request
  */
+@Slf4j
 @Component
 public class LoginUserInterceptor implements HandlerInterceptor {
     public static ThreadLocal<MemberEntityVo> threadLocal = new ThreadLocal<>();
@@ -24,6 +27,7 @@ public class LoginUserInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
         throws Exception {
+        log.info("拦截请求：uri={} method={}", request.getRequestURI(), request.getMethod());
         HttpSession session = request.getSession();
         MemberEntityVo member = (MemberEntityVo)session.getAttribute(AuthConstant.LOGIN_USER);
         if (member != null) {
@@ -43,5 +47,8 @@ public class LoginUserInterceptor implements HandlerInterceptor {
      */
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-        ModelAndView modelAndView) throws Exception {}
+        ModelAndView modelAndView) throws Exception {
+        log.info("拦截响应：uri={} method={}", request.getRequestURI(), request.getMethod());
+        request.getSession().removeAttribute("msg");
+    }
 }

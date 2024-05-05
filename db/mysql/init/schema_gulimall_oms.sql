@@ -5,6 +5,25 @@ CREATE DATABASE IF NOT EXISTS gulimall_oms DEFAULT CHARACTER SET utf8mb4 COLLATE
 -- 使用数据库
 use gulimall_oms;
 
+/*Table structure for table `undo_log` */
+DROP TABLE IF EXISTS `undo_log`;
+-- for AT mode you must to init this sql for you business database. the seata server not need it.
+CREATE TABLE IF NOT EXISTS `undo_log`
+(
+    `branch_id`     BIGINT       NOT NULL COMMENT 'branch transaction id',
+    `xid`           VARCHAR(128) NOT NULL COMMENT 'global transaction id',
+    `context`       VARCHAR(128) NOT NULL COMMENT 'undo_log context,such as serialization',
+    `rollback_info` LONGBLOB     NOT NULL COMMENT 'rollback info',
+    `log_status`    INT(11)      NOT NULL COMMENT '0:normal status,1:defense status',
+    `log_created`   DATETIME(6)  NOT NULL COMMENT 'create datetime',
+    `log_modified`  DATETIME(6)  NOT NULL COMMENT 'modify datetime',
+    UNIQUE KEY `ux_undo_log` (`xid`, `branch_id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COMMENT ='AT transaction mode undo table';
+
+/*Data for the table `undo_log` */
+
 drop table if exists oms_order;
 
 drop table if exists oms_order_item;
@@ -28,7 +47,7 @@ create table oms_order
 (
     id                   bigint not null auto_increment comment 'id',
     member_id            bigint comment 'member_id',
-    order_sn             char(32) comment '订单号',
+    order_sn             char(64) comment '订单号',
     coupon_id            bigint comment '使用的优惠券',
     create_time          datetime comment 'create_time',
     member_username      varchar(200) comment '用户名',
@@ -80,7 +99,7 @@ create table oms_order_item
 (
     id                   bigint not null auto_increment comment 'id',
     order_id             bigint comment 'order_id',
-    order_sn             char(32) comment 'order_sn',
+    order_sn             char(64) comment 'order_sn',
     spu_id               bigint comment 'spu_id',
     spu_name             varchar(255) comment 'spu_name',
     spu_pic              varchar(500) comment 'spu_pic',
@@ -127,7 +146,7 @@ create table oms_order_return_apply
     id                   bigint not null auto_increment comment 'id',
     order_id             bigint comment 'order_id',
     sku_id               bigint comment '退货商品id',
-    order_sn             char(32) comment '订单编号',
+    order_sn             char(64) comment '订单编号',
     create_time          datetime comment '申请时间',
     member_username      varchar(64) comment '会员用户名',
     return_amount        decimal(18,4) comment '退款金额',
@@ -195,7 +214,7 @@ alter table oms_order_setting comment '订单配置信息';
 create table oms_payment_info
 (
     id                   bigint not null auto_increment comment 'id',
-    order_sn             char(32) comment '订单号（对外业务号）',
+    order_sn             char(64) comment '订单号（对外业务号）',
     order_id             bigint comment '订单id',
     alipay_trade_no      varchar(50) comment '支付宝交易流水号',
     total_amount         decimal(18,4) comment '支付总金额',

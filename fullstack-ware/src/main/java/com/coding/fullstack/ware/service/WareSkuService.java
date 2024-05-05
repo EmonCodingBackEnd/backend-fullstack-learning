@@ -1,12 +1,13 @@
 package com.coding.fullstack.ware.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.coding.common.utils.PageUtils;
 import com.coding.fullstack.ware.entity.WareSkuEntity;
 import com.coding.fullstack.ware.vo.SkuHasStockVo;
-
-import java.util.List;
-import java.util.Map;
+import com.coding.fullstack.ware.vo.WareSkuLockVo;
 
 /**
  * 商品库存
@@ -22,5 +23,12 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     void addStock(Long skuId, Long wareId, Integer skuNum);
 
     List<SkuHasStockVo> getSkusHasStock(List<Long> skuIds);
-}
 
+    /**
+     * 为某个订单锁定库存
+     * 
+     * @param vo
+     * @return
+     */
+    Boolean orderLockStock(WareSkuLockVo vo);
+}

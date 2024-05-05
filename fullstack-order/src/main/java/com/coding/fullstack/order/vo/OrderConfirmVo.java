@@ -2,6 +2,7 @@ package com.coding.fullstack.order.vo;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 
@@ -11,7 +12,7 @@ import lombok.Data;
 @Data
 public class OrderConfirmVo {
     // 收货地址， ums_member_receive_address
-    List<MemberAddressVo> addresss;
+    List<MemberAddressVo> address;
     // 所有选中的购物项
     List<OrderItemVo> items;
     // 发票记录...
@@ -19,8 +20,15 @@ public class OrderConfirmVo {
     // 积分信息...
     private Integer integration;
 
+    // 商品的库存信息
+    Map<Long, Boolean> stocks;
+
     // 防止重复的令牌
     String orderToken;
+
+    public Integer getCount() {
+        return Math.toIntExact(items.stream().map(OrderItemVo::getCount).count());
+    }
 
     // 订单总额
     public BigDecimal getTotal() {

@@ -5,6 +5,25 @@ CREATE DATABASE IF NOT EXISTS gulimall_wms DEFAULT CHARACTER SET utf8mb4 COLLATE
 -- 使用数据库
 use gulimall_wms;
 
+/*Table structure for table `undo_log` */
+DROP TABLE IF EXISTS `undo_log`;
+-- for AT mode you must to init this sql for you business database. the seata server not need it.
+CREATE TABLE IF NOT EXISTS `undo_log`
+(
+    `branch_id`     BIGINT       NOT NULL COMMENT 'branch transaction id',
+    `xid`           VARCHAR(128) NOT NULL COMMENT 'global transaction id',
+    `context`       VARCHAR(128) NOT NULL COMMENT 'undo_log context,such as serialization',
+    `rollback_info` LONGBLOB     NOT NULL COMMENT 'rollback info',
+    `log_status`    INT(11)      NOT NULL COMMENT '0:normal status,1:defense status',
+    `log_created`   DATETIME(6)  NOT NULL COMMENT 'create datetime',
+    `log_modified`  DATETIME(6)  NOT NULL COMMENT 'modify datetime',
+    UNIQUE KEY `ux_undo_log` (`xid`, `branch_id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COMMENT ='AT transaction mode undo table';
+
+/*Data for the table `undo_log` */
+
 /*
 SQLyog Ultimate v11.25 (64 bit)
 MySQL - 5.7.27 : Database - gulimall_wms
@@ -22,26 +41,6 @@ MySQL - 5.7.27 : Database - gulimall_wms
 CREATE DATABASE /*!32312 IF NOT EXISTS*/`gulimall_wms` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 
 USE `gulimall_wms`;
-
-/*Table structure for table `undo_log` */
-
-DROP TABLE IF EXISTS `undo_log`;
-
-CREATE TABLE `undo_log` (
-                            `id` bigint(20) NOT NULL AUTO_INCREMENT,
-                            `branch_id` bigint(20) NOT NULL,
-                            `xid` varchar(100) NOT NULL,
-                            `context` varchar(128) NOT NULL,
-                            `rollback_info` longblob NOT NULL,
-                            `log_status` int(11) NOT NULL,
-                            `log_created` datetime NOT NULL,
-                            `log_modified` datetime NOT NULL,
-                            `ext` varchar(100) DEFAULT NULL,
-                            PRIMARY KEY (`id`),
-                            UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*Data for the table `undo_log` */
 
 /*Table structure for table `wms_purchase` */
 
