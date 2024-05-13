@@ -1,3 +1,5 @@
+seata:
+  enabled: false
 spring:
   cloud:
     nacos:

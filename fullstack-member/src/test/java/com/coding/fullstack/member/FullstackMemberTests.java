@@ -30,6 +30,7 @@ public class FullstackMemberTests {
     void testMd5Cryp2t() {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String result = passwordEncoder.encode("123456");
+        System.out.println(result);
         Assertions.assertTrue(passwordEncoder.matches("123456", result));
     }
 }
