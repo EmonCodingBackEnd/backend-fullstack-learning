@@ -40,7 +40,6 @@ import com.coding.fullstack.order.service.OrderItemService;
 import com.coding.fullstack.order.service.OrderService;
 import com.coding.fullstack.order.vo.*;
 
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
 
 @Service("orderService")
@@ -112,7 +111,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     // 本地事务，在分布式系统，只能控制住自己的回滚，控制不了其他服务的回滚。
     // 分布式事务：最大原因，是网络原因。
-    @GlobalTransactional
+    // @GlobalTransactional 不适用于高并发场景
     @Transactional
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {

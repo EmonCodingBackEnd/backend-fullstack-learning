@@ -87,4 +87,16 @@ public class RabbitController {
         }
         return "ok";
     }
+
+    @GetMapping("/rabbit/createOrderTest")
+    public String createOrderTest() {
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setId((long)1);
+        orderEntity.setCreateTime(new Date());
+        orderEntity.setOrderSn(UUID.randomUUID().toString());
+        rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", orderEntity,
+            new CorrelationData(UUID.randomUUID().toString()));
+        log.info("Message[{}]发送完成", orderEntity);
+        return "ok";
+    }
 }

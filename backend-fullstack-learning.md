@@ -4,7 +4,7 @@
 
 【谷粒商城】
 
-- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=291&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
+- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=294&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
 【msdq】https://www.bilibili.com/video/BV1ez42197Zd/?spm_id_from=333.1007.tianma.1-1-1.click&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
@@ -306,3 +306,8 @@ server {
 }
 ```
 
+# 消息队列流程
+
+![image-20240516080913771](images/image-20240516080913771.png)
+
+![image-20240516080922395](images/image-20240516080922395.png)
