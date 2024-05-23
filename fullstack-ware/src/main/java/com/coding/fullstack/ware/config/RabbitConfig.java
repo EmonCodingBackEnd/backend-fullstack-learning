@@ -1,4 +1,4 @@
-package com.coding.fullstack.order.config;
+package com.coding.fullstack.ware.config;
 
 import java.util.HashMap;
 
@@ -33,58 +33,49 @@ public class RabbitConfig {
     }
 
     /**
-     * 订单服务交换器
+     * 库存服务交换器
      */
     @Bean
-    public Exchange orderEventExchange() {
-        return new TopicExchange("order-event-exchange", true, false);
+    public Exchange stockEventExchange() {
+        return new TopicExchange("stock-event-exchange", true, false);
     }
 
     /**
-     * 订单延时队列
+     * 库存延时队列
      */
     @Bean
-    public Queue orderDelayQueue() {
+    public Queue stockDelayQueue() {
         HashMap<String, Object> arguments = new HashMap<>();
-        arguments.put("x-dead-letter-exchange", "order-event-exchange");
-        arguments.put("x-dead-letter-routing-key", "order.release.order");
-        arguments.put("x-message-ttl", 60000);
-        return new Queue("order.delay.queue", true, false, false, arguments);
+        arguments.put("x-dead-letter-exchange", "stock-event-exchange");
+        arguments.put("x-dead-letter-routing-key", "stock.release");
+        arguments.put("x-message-ttl", 120000);
+        return new Queue("stock.delay.queue", true, false, false, arguments);
     }
 
     /**
-     * 订单释放订单队列
+     * 库存释放库存队列
      */
     @Bean
-    public Queue orderReleaseOrderQueue() {
-        return new Queue("order.release.order.queue", true, false, false);
+    public Queue stockReleaseStockQueue() {
+        return new Queue("stock.release.stock.queue", true, false, false);
     }
 
     /**
      * 把订单延时任务绑定到延时队列
      */
     @Bean
-    public Binding orderCreateOrderBinding() {
-        return new Binding("order.delay.queue", Binding.DestinationType.QUEUE, "order-event-exchange",
-            "order.create.order", null);
+    public Binding stockLockedBinding() {
+        return new Binding("stock.delay.queue", Binding.DestinationType.QUEUE, "stock-event-exchange", "stock.locked",
+            null);
     }
 
     /**
      * 把订单延时任务绑定到释放队列
      */
     @Bean
-    public Binding orderReleaseOrderBinding() {
-        return new Binding("order.release.order.queue", Binding.DestinationType.QUEUE, "order-event-exchange",
-            "order.release.order", null);
-    }
-
-    /**
-     * 订单释放成功后，再次发送解锁库存消息给库存服务
-     */
-    @Bean
-    public Binding orderReleaseOtherBinding() {
-        return new Binding("stock.release.stock.queue", Binding.DestinationType.QUEUE, "order-event-exchange",
-            "order.release.other.#", null);
+    public Binding stockReleaseStockBinding() {
+        return new Binding("stock.release.stock.queue", Binding.DestinationType.QUEUE, "stock-event-exchange",
+            "stock.release.#", null);
     }
 
     /*
@@ -94,10 +85,9 @@ public class RabbitConfig {
      * 问：项目中引入了RabbitMQ,但是在加了@bean配置交换机和queue，启动项目却没自动化创建队列
      * 答：RabbitMQ懒加载模式， 需要配置消费者监听才会创建
      */
-    // @RabbitListener(queues = {"order.release.order.queue"})
-    // public void listener(OrderEntity reasonEntity, Message message, Channel channel) throws IOException {
-    // log.info("收到死信队列的消息：{}", reasonEntity);
-    // channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    // @RabbitListener(queues = {"stock.release.stock.queue"})
+    // public void listener(Message message, Channel channel) throws IOException {
+    // log.info("收到释放库存的消息...忽略处理！");
     // }
 
 }

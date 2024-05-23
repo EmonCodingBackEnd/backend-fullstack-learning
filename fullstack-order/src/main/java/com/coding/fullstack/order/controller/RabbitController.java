@@ -30,6 +30,12 @@ public class RabbitController {
      */
     @PostConstruct
     public void initRabbitTemplate() {
+
+        /*
+         * 如何防止消息丢失？
+         * 1、做好消息确认机制(publisher,consumer)
+         * 2、每一个发送的消息都在数据库做好记录。定期将失败的消息重发。
+         */
         rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
             /**
              * 只要消息抵达Broker服务器，ack=true
@@ -40,6 +46,7 @@ public class RabbitController {
              */
             @Override
             public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+                // 服务器收到了
                 log.info("confirm===>correlationData={} ack={} cause={}", correlationData, ack, cause);
             }
         });
@@ -56,6 +63,8 @@ public class RabbitController {
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange,
                 String routingKey) {
+
+                // 报错误了。修改数据库当前消息的状态->错误
                 log.error("return===>message={} replyCode={} replyText={} exchange={} routingKey={}", message,
                     replyCode, replyText, exchange, routingKey);
             }

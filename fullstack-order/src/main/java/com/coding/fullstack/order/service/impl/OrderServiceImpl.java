@@ -8,6 +8,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -20,8 +24,10 @@ import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.coding.common.constant.OrderConstant;
+import com.coding.common.to.mq.OrderTo;
 import com.coding.common.utils.PageUtils;
 import com.coding.common.utils.Query;
 import com.coding.common.utils.R;
@@ -53,6 +59,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     private final StringRedisTemplate stringRedisTemplate;
 
     private final OrderItemService orderItemService;
+
+    private final RabbitTemplate rabbitTemplate;
 
     public static ThreadLocal<OrderSubmitVo> threadLocal = new ThreadLocal<>();
 
@@ -115,8 +123,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     @Transactional
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
-        SubmitOrderResponseVo submitOrderResponseVo = new SubmitOrderResponseVo();
-        submitOrderResponseVo.setCode(0);
+        SubmitOrderResponseVo submitResponse = new SubmitOrderResponseVo();
+        submitResponse.setCode(0);
         try {
             threadLocal.set(vo);
             MemberEntityVo memberEntityVo = LoginUserInterceptor.threadLocal.get();
@@ -128,7 +136,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             // 令牌验证是否通过
             boolean flag = orderToken != null && orderToken.equals(redisOrderToken);
             if (!flag) {
-            return submitOrderResponseVo;
+            return submitResponse;
             }
             // 令牌验证通过
             stringRedisTemplate.delete(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberEntityVo.getId());*/
@@ -139,8 +147,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             Long result = stringRedisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class),
                 Collections.singletonList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberEntityVo.getId()), orderToken);
             if (result != null && result.intValue() == 0) {
-                submitOrderResponseVo.setCode(1);
-                return submitOrderResponseVo;
+                submitResponse.setCode(1);
+                return submitResponse;
             }
             // 2、验价
             OrderCreateTo orderTo = createOrder();
@@ -148,8 +156,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             BigDecimal payPrice = vo.getPayPrice();
             // 如果验价成功（误差小于0.01算作成功）
             if (Math.abs(payAmount.subtract(payPrice).doubleValue()) > 0.01) {
-                submitOrderResponseVo.setCode(2);
-                return submitOrderResponseVo;
+                submitResponse.setCode(2);
+                return submitResponse;
             }
             // 3、保存订单
             saveOrder(orderTo);
@@ -166,15 +174,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             R r = wareFeignService.orderLockStock(wareSkuLockVo);
             if (r.getCode() == 0) {
                 // 锁定成功
-                submitOrderResponseVo.setOrder(orderTo.getOrder());
-                if (1 == 1) {
-                    throw new RuntimeException("库存锁定失败");
-                }
-                return submitOrderResponseVo;
+                submitResponse.setOrder(orderTo.getOrder());
+                // 订单创建成功发送消息给MQ
+                rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", orderTo.getOrder(),
+                    new CorrelationData(UUID.randomUUID().toString()));
+                return submitResponse;
             } else {
                 // 锁定失败
-                submitOrderResponseVo.setCode(3);
-                return submitOrderResponseVo;
+                submitResponse.setCode(3);
+                return submitResponse;
             }
 
         } catch (Exception e) {
@@ -187,7 +195,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     /**
      * 保存订单数据
-     * 
+     *
      * @param orderTo
      */
     private void saveOrder(OrderCreateTo orderTo) {
@@ -248,7 +256,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     /**
      * 构建订单数据
-     * 
+     *
      * @param orderSn
      * @return
      */
@@ -279,7 +287,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     /**
      * 构建所有订单项数据
-     * 
+     *
      * @param orderSn
      * @return
      */
@@ -324,5 +332,37 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             return orderItemEntities;
         }
         return null;
+    }
+
+    @Override
+    public OrderEntity getOrderByOrderSn(String orderSn) {
+        OrderEntity one = this.getOne(Wrappers.lambdaQuery(OrderEntity.class).eq(OrderEntity::getOrderSn, orderSn));
+        return one;
+    }
+
+    @Override
+    public void closeOrder(OrderEntity entity) {
+        // 查询当前这个订单的最新状态
+        OrderEntity orderEntity = this.getById(entity.getId());
+        if (OrderStatusEnum.CREATE_NEW.getCode().equals(orderEntity.getStatus())) {
+            // 关单
+            OrderEntity updEntity = new OrderEntity();
+            updEntity.setId(orderEntity.getId());
+            updEntity.setStatus(OrderStatusEnum.CANCLED.getCode());
+            this.updateById(updEntity);
+
+            OrderTo orderTo = new OrderTo();
+            BeanUtils.copyProperties(orderEntity, orderTo);
+
+            // 订单解锁成功发送消息给MQ
+            try {
+                // TODO: 2024/5/22 保证消息一定发送出去，每一个消息都日志记录（给数据库保存每一个消息的详细信息），定期扫描数据库，将失败的消息再发送一遍
+                rabbitTemplate.convertAndSend("order-event-exchange", "order.release.other", orderTo,
+                    new CorrelationData(UUID.randomUUID().toString()));
+            } catch (AmqpException e) {
+                // TODO: 2024/5/22 将没有发送成功的消息，再次发送出去
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
