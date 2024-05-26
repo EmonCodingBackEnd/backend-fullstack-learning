@@ -42,6 +42,17 @@ public class OrderController {
     }
 
     /**
+     * 列表
+     */
+    @RequestMapping("/listWithItem")
+    // @RequiresPermissions("order:order:list")
+    public R listWithItem(@RequestBody Map<String, Object> params) {
+        PageUtils page = orderService.queryPageWithItem(params);
+
+        return R.ok().put("page", page);
+    }
+
+    /**
      * 信息
      */
     @RequestMapping("/info/{id}")

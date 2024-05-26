@@ -229,6 +229,9 @@ create table oms_payment_info
 
 alter table oms_payment_info comment '支付信息表';
 
+CREATE UNIQUE INDEX order_sn USING BTREE ON gulimall_oms.oms_payment_info (order_sn);
+CREATE UNIQUE INDEX alipay_trade_no USING BTREE ON gulimall_oms.oms_payment_info (alipay_trade_no);
+
 /*==============================================================*/
 /* Table: oms_refund_info                                       */
 /*==============================================================*/

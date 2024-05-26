@@ -1,11 +1,14 @@
 package com.coding.fullstack.order.entity;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
 /**
@@ -190,4 +193,6 @@ public class OrderEntity implements Serializable {
 	 */
 	private Date modifyTime;
 
+    @TableField(exist = false)
+    private List<OrderItemEntity> orderItemEntities;
 }

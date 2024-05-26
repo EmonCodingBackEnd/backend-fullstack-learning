@@ -1,6 +1,8 @@
 package com.coding.fullstack.order.service.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +22,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -36,6 +40,7 @@ import com.coding.fullstack.order.dao.OrderDao;
 import com.coding.fullstack.order.dto.OrderCreateTo;
 import com.coding.fullstack.order.entity.OrderEntity;
 import com.coding.fullstack.order.entity.OrderItemEntity;
+import com.coding.fullstack.order.entity.PaymentInfoEntity;
 import com.coding.fullstack.order.enums.OrderStatusEnum;
 import com.coding.fullstack.order.feign.CartFeignService;
 import com.coding.fullstack.order.feign.MemberFeignService;
@@ -44,6 +49,7 @@ import com.coding.fullstack.order.feign.WareFeignService;
 import com.coding.fullstack.order.interceptor.LoginUserInterceptor;
 import com.coding.fullstack.order.service.OrderItemService;
 import com.coding.fullstack.order.service.OrderService;
+import com.coding.fullstack.order.service.PaymentInfoService;
 import com.coding.fullstack.order.vo.*;
 
 import lombok.RequiredArgsConstructor;
@@ -61,12 +67,36 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     private final OrderItemService orderItemService;
 
     private final RabbitTemplate rabbitTemplate;
+    private final PaymentInfoService paymentInfoService;
 
     public static ThreadLocal<OrderSubmitVo> threadLocal = new ThreadLocal<>();
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<OrderEntity> page = this.page(new Query<OrderEntity>().getPage(params), new QueryWrapper<OrderEntity>());
+
+        return new PageUtils(page);
+    }
+
+    @Override
+    public PageUtils queryPageWithItem(Map<String, Object> params) {
+        MemberEntityVo memberEntityVo = LoginUserInterceptor.threadLocal.get();
+
+        LambdaQueryWrapper<OrderEntity> lambda = Wrappers.lambdaQuery(OrderEntity.class);
+        lambda.eq(OrderEntity::getMemberId, memberEntityVo.getId());
+        lambda.orderByDesc(OrderEntity::getId);
+        IPage<OrderEntity> page = this.page(new Query<OrderEntity>().getPage(params), lambda);
+
+        if (page.getRecords() != null) {
+            List<OrderEntity> collect = page.getRecords().stream().map(order -> {
+                List<OrderItemEntity> list = orderItemService.list(
+                    Wrappers.lambdaQuery(OrderItemEntity.class).eq(OrderItemEntity::getOrderSn, order.getOrderSn()));
+                order.setOrderItemEntities(list);
+                return order;
+            }).collect(Collectors.toList());
+
+            page.setRecords(collect);
+        }
 
         return new PageUtils(page);
     }
@@ -365,4 +395,47 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             }
         }
     }
+
+    @Override
+    public PayVo getOrderPay(String orderSn) {
+        PayVo payVo = new PayVo();
+
+        OrderEntity order = this.getOrderByOrderSn(orderSn);
+        List<OrderItemEntity> list =
+            orderItemService.list(Wrappers.lambdaQuery(OrderItemEntity.class).eq(OrderItemEntity::getOrderSn, orderSn));
+        payVo.setOut_trade_no(orderSn);
+        payVo.setSubject(list.get(0).getSkuName());
+        payVo.setTotal_amount(order.getPayAmount().setScale(2, RoundingMode.UP).toString());
+        payVo.setBody(list.get(0).getSkuAttrsVals());
+
+        return payVo;
+    }
+
+    @Transactional
+    @Override
+    public String handlePayNotifyResult(PayNotifyAsyncVo notifyVo) {
+        // 1、保存交易流水
+        PaymentInfoEntity payment = new PaymentInfoEntity();
+        payment.setAlipayTradeNo(notifyVo.getTrade_no());
+        payment.setOrderSn(notifyVo.getOut_trade_no());
+        payment.setPaymentStatus(notifyVo.getTrade_status());
+        payment.setCallbackTime(Date.from(notifyVo.getNotify_time().atZone(ZoneId.systemDefault()).toInstant()));
+        payment.setCallbackContent(JSONObject.toJSONString(notifyVo));
+        paymentInfoService.save(payment);
+
+        // 2、修改订单的状态信息
+        /*
+        状态 TRADE_SUCCESS 的通知触发条件是商家开通的产品支持退款功能的前提下，买家付款成功。
+        交易状态 TRADE_FINISHED 的通知触发条件是商家开通的产品不支持退款功能的前提下，买家付款成功；或者，商家开通的产品支持退款功能的前提下，交易已经成功并且已经超过可退款期限。
+         */
+        boolean payedSuccess =
+            "TRADE_SUCCESS".equals(notifyVo.getTrade_status()) || "TRADE_FINISHED".equals(notifyVo.getTrade_status());
+        if (payedSuccess) {
+            // 订单支付成功
+            String outTradeNo = notifyVo.getOut_trade_no();
+            int effectInt = this.baseMapper.updateOrderStatus(outTradeNo, OrderStatusEnum.PAYED.getCode());
+        }
+        return "success";
+    }
+
 }

@@ -33,6 +33,7 @@ public class OrderReleaseListener {
             // Boolean redelivered = message.getMessageProperties().getRedelivered();
             orderService.closeOrder(entity);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            // TODO: 2024/5/26 若采用了手动收单，也可以在这里调用
         } catch (Exception e) {
             log.error("释放订单消息失败", e);
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);

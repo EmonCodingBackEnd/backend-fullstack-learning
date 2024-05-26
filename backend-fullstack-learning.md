@@ -4,7 +4,7 @@
 
 【谷粒商城】
 
-- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=301&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
+- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=311&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
 【msdq】https://www.bilibili.com/video/BV1ez42197Zd/?spm_id_from=333.1007.tianma.1-1-1.click&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
@@ -268,6 +268,7 @@ GET product/_search
 192.168.32.116		auth.fsmall.com
 192.168.32.116		cart.fsmall.com
 192.168.32.116		order.fsmall.com
+192.168.32.116		member.fsmall.com
 ```
 
 - nginx.conf
@@ -288,9 +289,10 @@ GET product/_search
 - fsmall.com
 
 ```nginx
+# exp.mynatapp.cc内网穿透，转发到虚拟机ip的80端口
 server {
     listen       80;
-    server_name  fsmall.com *.fsmall.com;
+    server_name  fsmall.com *.fsmall.com exp.mynatapp.cc;
 
     #access_log  /var/log/nginx/host.access.log  main;
 
@@ -299,12 +301,21 @@ server {
         root   /usr/share/nginx/html;
     }
     
+    # 使用了内网穿透，添加订单域名，为了网关根据域名而负载均衡调用
+    location /payed/notify {
+        proxy_pass  http://fsmall;
+        proxy_set_header Host order.fsmall.com;
+    }
     location / {
         proxy_pass  http://fsmall;
         proxy_set_header Host $host;
     }
 }
 ```
+
+- exp.mynatapp.cc内网穿透配置图
+
+![image-20240525191322065](images/image-20240525191322065.png)
 
 # 消息队列流程
 
@@ -314,5 +325,39 @@ server {
 
 # 接入支付宝
 
-https://open.alipay.com/
+[CSDN支付宝沙箱的使用](https://blog.csdn.net/qq_56282336/article/details/130845610)
+
+[支付宝开放平台控制台沙箱](https://open.alipay.com/develop/sandbox/app)
+
+[支付宝开放平台通用文档沙箱与秘钥工具](https://opendocs.alipay.com/common/02kipk?pathHash=0d20b438)
+
+[异步通知说明文档](https://opendocs.alipay.com/open/270/105902?pathHash=d5cd617e)
+
+[支付宝支付DEMO](https://opendocs.alipay.com/common/02kkv5?pathHash=17e7ce50)
+
+[51IDEA运行支付宝支付DEMO](https://blog.51cto.com/wangzhenjun/5757130)
+
+
+
+# 收单
+
+1、订单在支付页，不支付，一直刷新，订单过期了才支付，订单状态改为已支付了，但是库存解锁了。
+
+- 使用支付宝自动收单功能解决。只要一段时间不支付，就不能支付了。【推荐】
+
+2、由于时延等问题。订单解锁完成，正在解锁库存的时候，异步通知才到。
+
+- 订单解锁，手动调用收单。
+
+3、网络阻塞问题，订单支付成功的异步通知一直不到达。
+
+- 查询订单列表时，ajax获取当前未支付的订单状态，查询订单状态时，再获取一下支付宝此订单的状态。
+
+4、 其他各种问题
+
+- 每天晚上闲事下载支付宝对账单，——进行对账。
+
+
+
+
 
