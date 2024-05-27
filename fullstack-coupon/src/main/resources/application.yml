@@ -13,8 +13,8 @@ spring:
       - nacos:datasource.yml?refresh=true
       - nacos:mybatis.yml?refresh=true
       - nacos:other.yml?refresh=true
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
+#  jackson:
+#    date-format: yyyy-MM-dd HH:mm:ss
 
 # 这里的配置，会低于配置中心的优先级
 coupon:
