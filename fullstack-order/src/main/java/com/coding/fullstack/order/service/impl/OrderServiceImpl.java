@@ -32,6 +32,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.coding.common.constant.OrderConstant;
 import com.coding.common.to.mq.OrderTo;
+import com.coding.common.to.mq.SeckilklOrderTo;
 import com.coding.common.utils.PageUtils;
 import com.coding.common.utils.Query;
 import com.coding.common.utils.R;
@@ -438,4 +439,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return "success";
     }
 
+    @Transactional
+    @Override
+    public void createSeckillOrder(SeckilklOrderTo orderTo) {
+        // 保存订单信息
+        OrderEntity order = new OrderEntity();
+        order.setOrderSn(orderTo.getOrderSn());
+        order.setMemberId(orderTo.getMemberId());
+        order.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        order.setPayAmount(orderTo.getSeckillPrice().multiply(new BigDecimal(orderTo.getNum())));
+        this.save(order);
+
+        // 保存订单项信息
+        OrderItemEntity orderItem = new OrderItemEntity();
+        orderItem.setOrderSn(orderTo.getOrderSn());
+        orderItem.setRealAmount(order.getPayAmount());
+        // 获取当前Sku的详细信息进行设置
+        // productFeignService.getSpuInfoBySkuId(orderTo.getSkuId());
+        orderItem.setSkuQuantity(orderTo.getNum());
+        orderItemService.save(orderItem);
+    }
 }

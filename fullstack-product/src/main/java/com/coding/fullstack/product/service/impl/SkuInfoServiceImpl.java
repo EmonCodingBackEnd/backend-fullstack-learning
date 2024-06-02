@@ -9,8 +9,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
 
+import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -18,11 +18,14 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.coding.common.utils.PageUtils;
 import com.coding.common.utils.Query;
+import com.coding.common.utils.R;
 import com.coding.fullstack.product.dao.SkuInfoDao;
 import com.coding.fullstack.product.entity.SkuImagesEntity;
 import com.coding.fullstack.product.entity.SkuInfoEntity;
 import com.coding.fullstack.product.entity.SpuInfoDescEntity;
+import com.coding.fullstack.product.feign.SeckillFeignService;
 import com.coding.fullstack.product.service.*;
+import com.coding.fullstack.product.vo.SeckillInfoVo;
 import com.coding.fullstack.product.vo.SkuItemSaleAttrVo;
 import com.coding.fullstack.product.vo.SkuItemVo;
 import com.coding.fullstack.product.vo.SpuItemAttrGroupVo;
@@ -37,6 +40,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     private final AttrGroupService attrGroupService;
     private final SkuSaleAttrValueService skuSaleAttrValueService;
     private final ThreadPoolExecutor executor;
+    private final SeckillFeignService seckillFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -126,8 +130,17 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             skuItemVo.setAttrGroupVos(attrGroupVos);
         }, executor);
 
+        // 6、当前商品是否参与了秒杀优惠
+        CompletableFuture<Void> seckillFuture = infoFuture.thenAcceptAsync(info -> {
+            R seckillInfo = seckillFeignService.getCurrentSeckillInfo(skuId);
+            if (seckillInfo.getCode() == 0) {
+                SeckillInfoVo seckillInfoVo = seckillInfo.getData(new TypeReference<SeckillInfoVo>() {});
+                skuItemVo.setSeckillInfo(seckillInfoVo);
+            }
+        }, executor);
+
         CompletableFuture<Void> allOf =
-            CompletableFuture.allOf(saleAttrFuture, descFuture, attrGroupFuture, imageFuture);
+            CompletableFuture.allOf(saleAttrFuture, descFuture, attrGroupFuture, imageFuture, seckillFuture);
         allOf.get();
 
         return skuItemVo;

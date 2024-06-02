@@ -100,4 +100,21 @@ public class RabbitConfig {
     // channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     // }
 
+    /**
+     * 秒杀削峰队列
+     */
+    @Bean
+    public Queue orderSeckillOrderQueue() {
+        return new Queue("order.seckill.order.queue", true, false, false);
+    }
+
+    /**
+     * 把秒杀削峰任务绑定到削峰队列
+     */
+    @Bean
+    public Binding orderSeckillOrderBinding() {
+        return new Binding("order.seckill.order.queue", Binding.DestinationType.QUEUE, "order-event-exchange",
+            "order.seckill.order", null);
+    }
+
 }

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.coding.common.to.mq.SeckilklOrderTo;
 import com.coding.common.utils.PageUtils;
 import com.coding.fullstack.order.entity.OrderEntity;
 import com.coding.fullstack.order.vo.*;
@@ -49,4 +50,6 @@ public interface OrderService extends IService<OrderEntity> {
     PageUtils queryPageWithItem(Map<String, Object> params);
 
     String handlePayNotifyResult(PayNotifyAsyncVo notifyVo);
+
+    void createSeckillOrder(SeckilklOrderTo orderTo);
 }

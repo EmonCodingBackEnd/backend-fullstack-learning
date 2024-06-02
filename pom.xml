@@ -24,6 +24,7 @@
         <module>fullstack-cart</module><!--通过 cart.fsmall.com 域名访问-->
         <module>renren-fast</module>
         <module>renren-generator</module>
+        <module>fullstack-seckill</module>
     </modules>
 
     <properties>
