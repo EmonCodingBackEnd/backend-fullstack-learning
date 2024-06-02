@@ -25,53 +25,6 @@ public class RabbitController {
 
     private final RabbitTemplate rabbitTemplate;
 
-    /**
-     * 定制RabbitTemplate
-     */
-    @PostConstruct
-    public void initRabbitTemplate() {
-
-        /*
-         * 如何防止消息丢失？
-         * 1、做好消息确认机制(publisher,consumer)
-         * 2、每一个发送的消息都在数据库做好记录。定期将失败的消息重发。
-         */
-        rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
-            /**
-             * 只要消息抵达Broker服务器，ack=true
-             * 
-             * @param correlationData - 当前消息的唯一关联数据
-             * @param ack true for ack, false for nack
-             * @param cause An optional cause, for nack, when available, otherwise null.
-             */
-            @Override
-            public void confirm(CorrelationData correlationData, boolean ack, String cause) {
-                // 服务器收到了
-                log.info("confirm===>correlationData={} ack={} cause={}", correlationData, ack, cause);
-            }
-        });
-        rabbitTemplate.setReturnCallback(new RabbitTemplate.ReturnCallback() {
-            /**
-             * 只要消息没有投递给指定的队列，就会触发回调
-             * 
-             * @param message the returned message. 投递失败的消息详细信息
-             * @param replyCode the reply code. 回复的状态码
-             * @param replyText the reply text. 回复的文本内容
-             * @param exchange the exchange. 当时这个消息发给哪一个交换机
-             * @param routingKey the routing key. 当时这个消息用的哪一个路由键
-             */
-            @Override
-            public void returnedMessage(Message message, int replyCode, String replyText, String exchange,
-                String routingKey) {
-
-                // 报错误了。修改数据库当前消息的状态->错误
-                log.error("return===>message={} replyCode={} replyText={} exchange={} routingKey={}", message,
-                    replyCode, replyText, exchange, routingKey);
-            }
-
-        });
-    }
-
     @GetMapping("/rabbit/sendMq")
     public String sendMq(@RequestParam(value = "num", required = false, defaultValue = "10") Integer num) {
         for (int i = 0; i < num; i++) {

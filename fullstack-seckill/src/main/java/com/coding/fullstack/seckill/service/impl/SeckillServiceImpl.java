@@ -17,6 +17,10 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -32,7 +36,9 @@ import com.coding.fullstack.seckill.vo.SeckillSessionsWithSkus;
 import com.coding.fullstack.seckill.vo.SkuInfoVo;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SeckillServiceImpl implements SeckillService {
@@ -121,36 +127,56 @@ public class SeckillServiceImpl implements SeckillService {
         });
     }
 
+    public List<SecKillSkuRedisTo> blockHandler(BlockException e) {
+        log.warn("blockHandler=>资源getCurrentSeckillSkus已被限流！{}", e.getMessage());
+        return null;
+    }
+
+    public List<SecKillSkuRedisTo> fallback(Throwable e) {
+        log.warn("fallback=>资源getCurrentSeckillSkus已被限流！{}", e.getMessage());
+        return null;
+    }
+
+    /**
+     * 注意 blockHandler 函数会在原方法被限流/降级/系统保护的时候调用，而 fallback 函数会针对所有类型的异常
+     */
+    @SentinelResource(value = "getCurrentSeckillSkus", blockHandler = "blockHandler", fallback = "fallback")
     @Override
     public List<SecKillSkuRedisTo> getCurrentSeckillSkus() {
+
         // 1、确定当前时间属于哪一个秒杀场次
         long time = System.currentTimeMillis();
-        Set<String> keys = stringRedisTemplate.keys(SESSIONS_CACHE_PREFIX + "*");
-        if (keys != null && !keys.isEmpty()) {
-            // key=场次_商品
-            for (String key : keys) {
-                String[] s = key.replace(SESSIONS_CACHE_PREFIX, "").split("_");
-                long start = Long.parseLong(s[0]);
-                long end = Long.parseLong(s[1]);
-                if (time >= start && time <= end) {
-                    // 2、获取这个秒杀场次的所有商品 比如：range=[2_1,2_2]
-                    List<String> range = stringRedisTemplate.opsForList().range(key, -100, 100);
-                    if (range != null && !range.isEmpty()) {
-                        BoundHashOperations<String, String, String> ops =
-                            stringRedisTemplate.boundHashOps(SKUS_CACHE_PREFIX);
-                        List<String> list = ops.multiGet(range);
-                        if (list != null) {
-                            return list.stream().map(e -> {
-                                SecKillSkuRedisTo redisTo = JSON.parseObject(e, SecKillSkuRedisTo.class);
-                                // 当前秒杀开始就需要随机码
-                                redisTo.setRandomCode(null);
-                                return redisTo;
-                            }).collect(Collectors.toList());
+
+        try (Entry entry = SphU.entry("seckillSkus")) {
+            Set<String> keys = stringRedisTemplate.keys(SESSIONS_CACHE_PREFIX + "*");
+            if (keys != null && !keys.isEmpty()) {
+                // key=场次_商品
+                for (String key : keys) {
+                    String[] s = key.replace(SESSIONS_CACHE_PREFIX, "").split("_");
+                    long start = Long.parseLong(s[0]);
+                    long end = Long.parseLong(s[1]);
+                    if (time >= start && time <= end) {
+                        // 2、获取这个秒杀场次的所有商品 比如：range=[2_1,2_2]
+                        List<String> range = stringRedisTemplate.opsForList().range(key, -100, 100);
+                        if (range != null && !range.isEmpty()) {
+                            BoundHashOperations<String, String, String> ops =
+                                stringRedisTemplate.boundHashOps(SKUS_CACHE_PREFIX);
+                            List<String> list = ops.multiGet(range);
+                            if (list != null) {
+                                return list.stream().map(e -> {
+                                    SecKillSkuRedisTo redisTo = JSON.parseObject(e, SecKillSkuRedisTo.class);
+                                    // 当前秒杀开始就需要随机码
+                                    redisTo.setRandomCode(null);
+                                    return redisTo;
+                                }).collect(Collectors.toList());
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
+        } catch (BlockException e) {
+            log.warn("资源seckillSkus已被限流！{}", e.getMessage());
         }
         return null;
     }

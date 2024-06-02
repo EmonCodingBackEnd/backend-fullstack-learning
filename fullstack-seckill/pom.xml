@@ -84,6 +84,15 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+        <!--
+        1.8版本的sentinel并不需要单独引入该starter，也能显示实时监控页面，
+        也不需要增加配置： management.endpoints.web.exposure.include=*
+        Sentinel 内部提供了一个 Endpoint, 对应的 endpoint id 为 sentinel。
+        -->
+        <!--<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

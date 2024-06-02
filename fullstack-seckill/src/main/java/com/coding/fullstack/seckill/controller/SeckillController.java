@@ -14,7 +14,9 @@ import com.coding.fullstack.seckill.service.SeckillService;
 import com.coding.fullstack.seckill.to.SecKillSkuRedisTo;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class SeckillController {
@@ -26,6 +28,7 @@ public class SeckillController {
     @ResponseBody
     @GetMapping("/currentSeckillSkus")
     public R getCurrentSeckillSkus() {
+        log.info("currentSeckillSkus请求");
         List<SecKillSkuRedisTo> vos = seckillService.getCurrentSeckillSkus();
         return R.ok().setData(vos);
     }
