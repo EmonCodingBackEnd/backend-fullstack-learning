@@ -19,6 +19,7 @@ public class SentinelConfig {
             log.warn("降级方法调用...{}", request.getRequestURI());
             R error = R.error(BizCodeEnum.TOO_MANY_REQUEST.getCode(), BizCodeEnum.TOO_MANY_REQUEST.getMsg());
             response.setCharacterEncoding("UTF-8");
+            response.setStatus(429);
             response.setContentType("application/json");
             response.getWriter().write(JSON.toJSONString(error));
         };

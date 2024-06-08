@@ -9,7 +9,6 @@ import com.coding.fullstack.product.feign.SeckillFeignService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-
 @Component
 public class SeckillFeignServiceFallback implements SeckillFeignService {
     @Override

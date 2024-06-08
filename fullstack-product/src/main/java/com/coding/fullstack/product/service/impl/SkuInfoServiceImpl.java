@@ -31,7 +31,9 @@ import com.coding.fullstack.product.vo.SkuItemVo;
 import com.coding.fullstack.product.vo.SpuItemAttrGroupVo;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service("skuInfoService")
 @RequiredArgsConstructor
 public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> implements SkuInfoService {
@@ -132,6 +134,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
         // 6、当前商品是否参与了秒杀优惠
         CompletableFuture<Void> seckillFuture = infoFuture.thenAcceptAsync(info -> {
+            log.info("根据 skuId={} 查询秒杀信息！", skuId);
             R seckillInfo = seckillFeignService.getCurrentSeckillInfo(skuId);
             if (seckillInfo.getCode() == 0) {
                 SeckillInfoVo seckillInfoVo = seckillInfo.getData(new TypeReference<SeckillInfoVo>() {});

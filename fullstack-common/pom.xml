@@ -114,10 +114,10 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
-        <!--找不到com.alibaba.csp.sentinel.adapter.servlet.callback.WebCallbackManager需要引入依赖-->
+        <!--sentinel规则持久化到nacos数据源-->
         <dependency>
             <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-web-servlet</artifactId>
+            <artifactId>sentinel-datasource-nacos</artifactId>
         </dependency>
 
         <dependency>

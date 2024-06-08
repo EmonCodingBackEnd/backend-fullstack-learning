@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.Tracer;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
@@ -177,6 +178,9 @@ public class SeckillServiceImpl implements SeckillService {
             }
         } catch (BlockException e) {
             log.warn("资源seckillSkus已被限流！{}", e.getMessage());
+            if (!BlockException.isBlockException(e)) {
+                Tracer.trace(e);
+            }
         }
         return null;
     }

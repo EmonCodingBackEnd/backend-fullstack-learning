@@ -1,6 +1,7 @@
 package com.coding.fullstack.seckill.controller;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,6 +37,12 @@ public class SeckillController {
     @ResponseBody
     @GetMapping("/sku/seckill/{skuId}")
     public R getCurrentSeckillInfo(@PathVariable("skuId") Long skuId) {
+        log.info("根据 skuId={} 查询秒杀信息！", skuId);
+        try {
+            TimeUnit.MILLISECONDS.sleep(50);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         SecKillSkuRedisTo to = seckillService.getCurrentSeckillInfo(skuId);
         return R.ok().setData(to);
     }
