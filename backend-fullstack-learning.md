@@ -4,7 +4,7 @@
 
 【谷粒商城】
 
-- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=339&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
+- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=365&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
 【msdq】https://www.bilibili.com/video/BV1ez42197Zd/?spm_id_from=333.1007.tianma.1-1-1.click&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
@@ -28,6 +28,8 @@ https://easydoc.net/s/78237135/ZUqEdvA4/HqQGp9TI
 ![image-20240303202236782](images/image-20240303202236782.png)
 
 
+
+![image-20240628180327978](images/谷粒商城-微服务架构图.jpg)
 
 # Elasticsearch的Mapping
 
@@ -413,6 +415,10 @@ nginx做好动静分离。保证秒杀和商品详情页的动态请求才达到
 8. 队列削峰
 
 1万个商品，每个1000件秒杀。双11所有秒杀成功的请求，进入队列，慢慢创建订单，扣减库存即可。
+
+# ShardingSphere
+
+
 
 
 
