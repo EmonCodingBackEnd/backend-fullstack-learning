@@ -4,7 +4,7 @@
 
 【谷粒商城】
 
-- https://www.bilibili.com/video/BV1np4y1C7Yf/?p=365&spm_id_from=pageDriver&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
+- https://www.bilibili.com/video/BV1np4y1C7Yf?p=373&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
 【msdq】https://www.bilibili.com/video/BV1ez42197Zd/?spm_id_from=333.1007.tianma.1-1-1.click&vd_source=b850b3a29a70c8eb888ce7dff776a5d1
 
@@ -417,6 +417,139 @@ nginx做好动静分离。保证秒杀和商品详情页的动态请求才达到
 1万个商品，每个1000件秒杀。双11所有秒杀成功的请求，进入队列，慢慢创建订单，扣减库存即可。
 
 # ShardingSphere
+
+- 分库分表配置
+
+```bash
+$ vim /usr/local/dockerv/ssproxy/conf/database-sharding.yaml
+```
+
+```yaml
+databaseName: sharding_db
+
+dataSources:
+  ds_0:
+    url: jdbc:mysql://192.168.32.116:3307/demo_ds_0?useSSL=false
+    username: root
+    password: root123
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+  ds_1:
+    url: jdbc:mysql://192.168.32.116:3307/demo_ds_1?useSSL=false
+    username: root
+    password: root123
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+rules:
+- !SHARDING
+  tables:
+    t_order:
+      actualDataNodes: ds_${0..1}.t_order_${0..1}
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: t_order_inline
+      keyGenerateStrategy:
+        column: order_id
+        keyGeneratorName: snowflake
+#      auditStrategy:
+#        auditorNames:
+#          - sharding_key_required_auditor
+#        allowHintDisable: true
+    t_order_item:
+      actualDataNodes: ds_${0..1}.t_order_item_${0..1}
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: t_order_item_inline
+      keyGenerateStrategy:
+        column: order_item_id
+        keyGeneratorName: snowflake
+  bindingTables:
+    - t_order,t_order_item
+  defaultDatabaseStrategy:
+    standard:
+      shardingColumn: user_id
+      shardingAlgorithmName: database_inline
+  defaultTableStrategy:
+    none:
+#  defaultAuditStrategy:
+#    auditorNames:
+#      - sharding_key_required_auditor
+#    allowHintDisable: true
+
+  shardingAlgorithms:
+    database_inline:
+      type: INLINE
+      props:
+        algorithm-expression: ds_${user_id % 2}
+    t_order_inline:
+      type: INLINE
+      props:
+        algorithm-expression: t_order_${order_id % 2}
+    t_order_item_inline:
+      type: INLINE
+      props:
+        algorithm-expression: t_order_item_${order_id % 2}
+
+  keyGenerators:
+    snowflake:
+      type: SNOWFLAKE
+#
+#  auditors:
+#    sharding_key_required_auditor:
+#      type: DML_SHARDING_CONDITIONS
+#
+#- !BROADCAST
+#  tables:
+#    - t_address
+```
+
+- 连接ShardingSphere-Proxy服务并执行sql语句，观察分库分表效果。
+
+  - 创建数据表
+
+  ```sql
+  create table t_order(
+  	order_id bigint(20) not null auto_increment,
+  	user_id int(11) not null,
+  	status varchar(50) collate utf8_bin default null,
+  	primary key(order_id)
+  )engine = InnoDB default charset = utf8 collate = utf8_bin;
+  
+  create table t_order_item(
+  	order_item_id bigint(20) not null,
+  	order_id bigint(20) not null,
+  	user_id int(11) not null,
+  	content varchar(255) collate utf8_bin default null,
+  	status varchar(50) collate utf8_bin default null,
+  	primary key(order_item_id)
+  )engine = InnoDB default charset = utf8 collate = utf8_bin;
+  ```
+
+  - 执行sql
+
+  ```sql
+  insert into t_order (user_id,status) values(1,1);
+  insert into t_order (user_id,status) values(2,1);
+  insert into t_order (user_id,status) values(3,1);
+  insert into t_order (user_id,status) values(4,1);
+  insert into t_order (user_id,status) values(5,1);
+  ```
+
+> 执行完成后，可以在ShardingSphere-Proxy看到所有插入的数据，在demo_ds_0.t_order_x中看到user_id是2和4的记录，在demo_ds_1.t_order_x中看到user_id是1,3,5的记录。
+>
+> 按照user_id分库，按照order_id分表。
+
+
+
+
 
 
 
