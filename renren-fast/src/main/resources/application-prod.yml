@@ -3,9 +3,9 @@ spring:
         type: com.alibaba.druid.pool.DruidDataSource
         druid:
             driver-class-name: com.mysql.cj.jdbc.Driver
-            url: jdbc:mysql://localhost:3306/renren_fast?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-            username: renren
-            password: 123456
+            url: jdbc:mysql://mysql-master.fsmall-project:3306/renren_fast?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+            username: root
+            password: root123
             initial-size: 10
             max-active: 100
             min-idle: 10
@@ -51,7 +51,7 @@ spring:
     redis:
         open: false  # 是否开启redis缓存  true开启   false关闭
         database: 0
-        host: localhost
+        host: redis.fsmall-project
         port: 6379
         password:    # 密码（默认为空）
         timeout: 6000ms  # 连接超时时长（毫秒）
