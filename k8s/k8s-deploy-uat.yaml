@@ -1,0 +1,106 @@
+# web-custom.yaml 或者 k8s-deploy-drill.yaml 或其他名字
+#deploy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{name}}
+  namespace: {{ns}}
+spec:
+  selector:
+    matchLabels:
+      app: {{name}}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{name}}
+    spec:
+      containers:
+        - name: {{name}}
+          image: {{image}}
+          ports:
+            - containerPort: 38751
+          resources:
+            requests:
+              memory: 768Mi
+              # 1核心的CPU=1000m
+              cpu: 700m
+            limits:
+              memory: 1024Mi
+              cpu: 1000m
+          # 存活状态检查
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 38751
+              scheme: HTTP
+            # pod 创建10s后启动第一次探测
+            initialDelaySeconds: 50
+            # 每隔10s启动一次探测
+            periodSeconds: 10
+            # 超时时间3s
+            timeoutSeconds: 3
+            # 成功1次即表示容器健康
+            successThreshold: 1
+            # 连续5次失败，则判定容器不健康，默认3次
+            failureThreshold: 5
+          # 就绪状态检查
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 38751
+              scheme: HTTP
+            initialDelaySeconds: 50
+            periodSeconds: 10
+            timeoutSeconds: 3
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx768m -Xms768m -Xmn256m -Xss228k -XX:MetaspaceSize=256m -Djasypt.encryptor.password=EbfYkLpulv58S2mFmXzmyJMXoaxZTDK7 -Dspring.profiles.active=uat"
+            # 1、stdout为约定关键字，表示采集标准输出日志
+            # 2、配置标准输出日志采集到ES的catalina索引下
+            - name: aliyun_logs_catalina
+              value: "stdout"
+            # 1、配置采集容器内文件日志，支持通配符
+            # 2、配置该日志采集到ES的access索引下
+            - name: aliyun_logs_access
+              value: "/home/saas/huiba/gaia/huiba-gaia-admin/logs/*.log"
+          # 容器内文件日志路径需要配置emptyDir
+          volumeMounts:
+            - name: log-volume
+              mountPath: /home/saas/huiba/gaia/huiba-gaia-admin/logs
+      volumes:
+        - name: log-volume
+          emptyDir: { }
+---
+#service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{name}}
+  namespace: {{ns}}
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 38751
+  selector:
+    app: {{name}}
+  type: ClusterIP
+
+---
+#ingress
+#apiVersion: extensions/v1beta1
+#kind: Ingress
+#metadata:
+#  name: {{name}}
+#  namespace: {{ns}}
+#spec:
+#  rules:
+#    - host: {{host}}
+#      http:
+#        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              serviceName: {{name}}
+#              servicePort: 80
