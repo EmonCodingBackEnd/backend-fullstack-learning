@@ -1,0 +1,17 @@
+pipeline {
+  agent {
+    node {
+      label 'maven'
+    }
+
+  }
+  stages {
+    stage('拉取代码') {
+      agent none
+      steps {
+        git(url: 'https://github.com/EmonCodingBackEnd/backend-fullstack-learning', credentialsId: 'github-id', branch: 'master', changelog: true, poll: false)
+      }
+    }
+
+  }
+}
