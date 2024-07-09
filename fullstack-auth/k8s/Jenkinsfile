@@ -3,15 +3,20 @@ pipeline {
     node {
       label 'maven'
     }
-
   }
   stages {
     stage('拉取代码') {
       agent none
       steps {
-        git(url: 'https://github.com/EmonCodingBackEnd/backend-fullstack-learning', credentialsId: 'github-id', branch: 'master', changelog: true, poll: false)
+        git(url: 'https://gitee.com/EmonCodingBackEnd/backend-fullstack-learning.git', credentialsId: 'gitee-id', branch: 'master', changelog: true, poll: false)
+        sh 'echo $TAG_NAME'
+        sh 'echo $MODULE_NAME'
       }
     }
-
   }
+    parameters {
+        string(name:'TAG_NAME',defaultValue: 'v0.0.1Beta',description:'镜像标签')
+        choice(name:'MODULE_NAME',choices:['fullstack-auth','fullstack-cart','fullstack-coupon','fullstack-gateway','fullstack-member','fullstack-order','fullstack-product','fullstack-search','fullstack-seckill','fullstack-thirdparty','fullstack-ware','renren-fast'],description:'对于多模块项目，选择一个待构建的模块')
+    }
+
 }
