@@ -16,8 +16,8 @@ pipeline {
     stage('拉取代码') {
       agent none
       steps {
-        git(url: 'https://gitee.com/EmonCodingBackEnd/backend-fullstack-learning.git', credentialsId: 'gitee-id', branch: 'master', changelog: true, poll: false)
         sh 'echo 构建模块 $MODULE_NAME 将会提交给镜像仓库 $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$TAG_NAME'
+        git(url: 'https://gitee.com/EmonCodingBackEnd/backend-fullstack-learning.git', credentialsId: 'gitee-id', branch: 'master', changelog: true, poll: false)
       }
     }
   }
