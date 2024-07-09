@@ -4,19 +4,26 @@ pipeline {
       label 'maven'
     }
   }
+  environment {
+    DOCKER_CREDENTIAL_ID = 'harbor-id'
+    GITHUB_CREDENTIAL_ID = 'gitee-id'
+    KUBECONFIG_CREDENTIAL_ID = 'fsmall-kubeconfig'
+    REGISTRY = '192.168.32.116:30002'
+    DOCKERHUB_NAMESPACE = 'ks-devops-harbor'
+    GITHUB_ACCOUNT = 'Rushing0711'
+  }
   stages {
     stage('拉取代码') {
       agent none
       steps {
         git(url: 'https://gitee.com/EmonCodingBackEnd/backend-fullstack-learning.git', credentialsId: 'gitee-id', branch: 'master', changelog: true, poll: false)
-        sh 'echo $TAG_NAME'
-        sh 'echo $MODULE_NAME'
+        sh 'echo 构建模块 $MODULE_NAME 将会提交给镜像仓库 $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$TAG_NAME'
       }
     }
   }
-    parameters {
-        string(name:'TAG_NAME',defaultValue: 'v0.0.1Beta',description:'镜像标签')
-        choice(name:'MODULE_NAME',choices:['fullstack-auth','fullstack-cart','fullstack-coupon','fullstack-gateway','fullstack-member','fullstack-order','fullstack-product','fullstack-search','fullstack-seckill','fullstack-thirdparty','fullstack-ware','renren-fast'],description:'对于多模块项目，选择一个待构建的模块')
-    }
+  parameters {
+      string(name:'TAG_NAME',defaultValue: 'v0.0.1Beta',description:'镜像标签')
+      choice(name:'MODULE_NAME',choices:['fullstack-auth','fullstack-cart','fullstack-coupon','fullstack-gateway','fullstack-member','fullstack-order','fullstack-product','fullstack-search','fullstack-seckill','fullstack-thirdparty','fullstack-ware','renren-fast'],description:'对于多模块项目，选择一个待构建的模块')
+  }
 
 }
