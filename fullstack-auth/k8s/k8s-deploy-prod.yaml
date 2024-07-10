@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fullstack-auth
-  namespace: fsmall-project
+  namespace: fsmall-prod
   labels:
     app: fullstack-auth
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: fullstack-auth
-          image: $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:$TAG_NAME
+          image: $IMAGE
           ports:
             - containerPort: 8080
           resources:
@@ -72,7 +72,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: fullstack-auth
-  namespace: fsmall-project
+  namespace: fsmall-prod
   labels:
     app: fullstack-auth
 spec:

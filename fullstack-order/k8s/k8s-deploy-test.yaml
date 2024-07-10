@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fullstack-ware
-  namespace: fsmall-prod
+  name: fullstack-order
+  namespace: fsmall-test
   labels:
-    app: fullstack-ware
+    app: fullstack-order
 spec:
   selector:
     matchLabels:
-      app: fullstack-ware
+      app: fullstack-order
   replicas: 1
   template:
     metadata:
       labels:
-        app: fullstack-ware
+        app: fullstack-order
     spec:
       containers:
-        - name: fullstack-ware
+        - name: fullstack-order
           image: $IMAGE
           ports:
             - containerPort: 8080
@@ -71,18 +71,18 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: fullstack-ware
-  namespace: fsmall-prod
+  name: fullstack-order
+  namespace: fsmall-test
   labels:
-    app: fullstack-ware
+    app: fullstack-order
 spec:
   ports:
     - name: http
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20010
+      nodePort: 20006
   selector:
-    app: fullstack-ware
+    app: fullstack-order
   type: NodePort
   sessionAffinity: None
