@@ -1,5 +1,5 @@
-# FROM java:8
-FROM java:8u92-jre-alpine
+FROM java:8
+#FROM java:8u92-jre-alpine
 MAINTAINER 问秋 liming2011071@163.com
 EXPOSE 8080
 
