@@ -128,18 +128,4 @@ pipeline {
       }
     }
   }
-
-  post {
-    aborted {
-      echo '中止！'
-    }
-
-    success {
-      echo '成功！'
-    }
-
-    failure {
-      echo '失败！'
-    }
-  }
 }
