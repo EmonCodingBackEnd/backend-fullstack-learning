@@ -3,11 +3,58 @@ pipeline {
     node {
       label 'maven'
     }
+
   }
-  parameters {
-      choice(name:'MODULE_NAME',choices:['fullstack-auth','fullstack-cart','fullstack-coupon','fullstack-gateway','fullstack-member','fullstack-order','fullstack-product','fullstack-search','fullstack-seckill','fullstack-thirdparty','fullstack-ware','renren-fast'],description:'对于多模块项目，选择一个待构建的模块')
-      choice(name:'BRANCH_NAME',choices:['master','develop'],description:'请选择SCM分支')
-      string(name:'TAG_NAME',defaultValue: '',description:'镜像标签，不指定时默认：yyyyMMddHHmmss')
+  stages {
+    stage('拉取代码') {
+      agent none
+      steps {
+        sh 'echo 检出代码并构建模块 $MODULE_NAME $TAG_NAME_DEFAULT'
+        git(url: 'https://gitee.com/EmonCodingBackEnd/backend-fullstack-learning.git', credentialsId: 'gitee-id', branch: 'master', changelog: true, poll: false)
+      }
+    }
+
+    stage('构建并推送镜像') {
+      steps {
+        sh 'echo 构建并推送镜像到镜像仓库 $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER'
+        container('maven') {
+          sh 'mvn -pl $MODULE_NAME -am clean package -DskipTests'
+          sh 'cd $MODULE_NAME && docker build -f k8s/Dockerfile -t $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER .'
+          withCredentials([usernamePassword(passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,credentialsId : "$DOCKER_CREDENTIAL_ID")]) {
+            sh 'echo "$DOCKER_PASSWORD" | docker login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
+            sh 'docker push $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER'
+          }
+
+        }
+
+      }
+    }
+
+    stage('推送指定标签镜像') {
+      agent none
+      when {
+        expression {
+          return params.TAG_NAME =~ /v.*/ || params.TAG_NAME
+        }
+
+      }
+      steps {
+        container('maven') {
+          input(id: '发布指定标签的镜像', message: String.format('为镜像打指定标签 %s ?', params.TAG_NAME), ok: '确定')
+          withCredentials([usernamePassword(passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME', credentialsId: "$GITHUB_CREDENTIAL_ID")]) {
+            sh 'git config --global user.email "kubesphere@yunify.com" '
+            sh 'git config --global user.name "kubesphere" '
+            sh 'git tag -a $TAG_NAME -m "$TAG_NAME" '
+            sh 'git push http://$GIT_USERNAME:$GIT_PASSWORD@gitee.com/$GITHUB_ACCOUNT_OR_ORG/backend-fullstack-learning.git --tags --ipv4'
+          }
+
+          sh 'docker tag $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$TAG_NAME '
+          sh 'docker push $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$TAG_NAME '
+        }
+
+      }
+    }
+
   }
   environment {
     DOCKER_CREDENTIAL_ID = 'harbor-id'
@@ -15,30 +62,29 @@ pipeline {
     KUBECONFIG_CREDENTIAL_ID = 'fsmall-kubeconfig'
     REGISTRY = '192.168.32.116:30002'
     DOCKERHUB_NAMESPACE = 'ks-devops-harbor'
-    GITHUB_ACCOUNT = 'Rushing0711'
+    GITHUB_ACCOUNT_OR_ORG = 'EmonCodingBackEnd'
   }
-  stages {
-    stage('拉取代码') {
-      agent none
-      steps {
-        sh 'echo 检出代码并构建模块 $MODULE_NAME'
-        git(url: 'https://gitee.com/EmonCodingBackEnd/backend-fullstack-learning.git', credentialsId: 'gitee-id', branch: 'master', changelog: true, poll: false)
-      }
+  post {
+    regression {
+      echo '部署异常！'
     }
-    
-      stage ('构建并推送镜像') {
-        steps {
-          sh 'echo 构建并推送镜像到镜像仓库 $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER'
-          container ('maven') {
-            sh 'mvn -pl $MODULE_NAME -am clean package -DskipTests'
-            sh 'cd $MODULE_NAME && docker build -f k8s/Dockerfile -t $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER .'
-            withCredentials([usernamePassword(passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,credentialsId : "$DOCKER_CREDENTIAL_ID" ,)]) {
-                sh 'echo "$DOCKER_PASSWORD" | docker login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
-                sh 'docker push $REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER'
-            }
-          }
-        }
-      }
-  }
 
+    aborted {
+      echo '部署中止！'
+    }
+
+    success {
+      echo '部署成功！'
+    }
+
+    failure {
+      echo '部署失败！'
+    }
+
+  }
+  parameters {
+    choice(name: 'MODULE_NAME', choices: ['fullstack-auth','fullstack-cart','fullstack-coupon','fullstack-gateway','fullstack-member','fullstack-order','fullstack-product','fullstack-search','fullstack-seckill','fullstack-thirdparty','fullstack-ware','renren-fast'], description: '对于多模块项目，选择一个待构建的模块')
+    choice(name: 'BRANCH_NAME', choices: ['master','develop'], description: '请选择SCM分支')
+    string(name: 'TAG_NAME', defaultValue: '', description: 'SCM标签，指定后则为SCM和镜像打标签')
+  }
 }
