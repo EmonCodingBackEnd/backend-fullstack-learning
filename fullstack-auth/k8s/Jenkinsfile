@@ -8,7 +8,7 @@ pipeline {
   parameters {
     choice(name: 'MODULE_NAME', choices: ['fullstack-auth','fullstack-cart','fullstack-coupon','fullstack-gateway','fullstack-member','fullstack-order','fullstack-product','fullstack-search','fullstack-seckill','fullstack-thirdparty','fullstack-ware','renren-fast'], description: '对于多模块项目，选择一个待构建的模块')
     choice(name: 'BRANCH_NAME', choices: ['master','develop'], description: '请选择SCM分支')
-    string(name: 'TAG_NAME', defaultValue: '', description: 'SCM标签，指定后则为SCM和镜像打标签，比如：v1.0.0；不指定时默认yyyyMMddHHmm')
+    string(name: 'TAG_NAME', defaultValue: '', description: 'SCM标签，指定后则为SCM和镜像打标签，比如：v1.0.0，默认不打标签')
     choice(name: 'DEPLOY_TO', choices: ['','fsmall-test','fsmall-prod'], description: '请选择部署环境，默认不部署')
   }
 
@@ -19,8 +19,9 @@ pipeline {
     REGISTRY = '192.168.32.116:30002'
     DOCKERHUB_NAMESPACE = 'ks-devops-harbor'
     GITHUB_ACCOUNT_OR_ORG = 'EmonCodingBackEnd'
-    TAG_NAME = "${!params.TAG_NAME ? (new Date()).format('yyyyMMddHHmm') : params.TAG_NAME}"
-    IMAGE = "$REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER-SNAPSHOT"
+    // TAG_NAME = "${!params.TAG_NAME ? (new Date()).format('yyyyMMddHHmm') : params.TAG_NAME}"
+    // IMAGE = "$REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:$BRANCH_NAME-$BUILD_NUMBER-SNAPSHOT"
+    IMAGE = "$REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:${(new Date()).format('yyyyMMddHHmm')}"
   }
 
   stages {
@@ -90,7 +91,7 @@ pipeline {
       when {
         branch 'master'
         expression {
-          return env.TAG_NAME =~ /v.*/ || env.TAG_NAME
+          return params.TAG_NAME =~ /v.*/
         }
       }
       environment {
@@ -99,7 +100,7 @@ pipeline {
       steps {
         sh 'echo 构建并推送指定标签镜像到镜像仓库 $TAG_IMAGE'
         container('maven') {
-          input(id: '发布指定标签的镜像', message: String.format('为镜像打指定标签 %s ？', env.TAG_NAME), ok: '确定')
+          input(id: '发布指定标签的镜像', message: String.format('为镜像打指定标签 %s ？', params.TAG_NAME), ok: '确定')
           withCredentials([usernamePassword(passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME', credentialsId: "$GITHUB_CREDENTIAL_ID")]) {
             sh 'git config --global user.email "kubesphere@yunify.com" '
             sh 'git config --global user.name "kubesphere" '
@@ -117,7 +118,7 @@ pipeline {
       when {
         branch 'master'
         expression {
-          return params.DEPLOY_TO && (env.TAG_NAME =~ /v.*/ || env.TAG_NAME)
+          return params.DEPLOY_TO && params.TAG_NAME =~ /v.*/
         }
       }
       environment {
