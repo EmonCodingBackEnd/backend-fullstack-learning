@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,10 +19,11 @@ public class RedissonConfig {
      * @throws IOException
      */
     @Bean(destroyMethod = "shutdown")
-    RedissonClient redisson() throws IOException {
+    RedissonClient redisson(@Value("${spring.redis.host}") String host, @Value("${spring.redis.port}") String port,
+        @Value("${spring.redis.password}") String password) throws IOException {
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://repo.emon.vip:6379").setPassword("redis123").setDatabase(0)
-            .setTimeout(3000);
+        config.useSingleServer().setAddress(String.format("redis://%s:%s", host, port)).setPassword(password)
+            .setDatabase(0).setTimeout(3000);
         return Redisson.create(config);
     }
 }
