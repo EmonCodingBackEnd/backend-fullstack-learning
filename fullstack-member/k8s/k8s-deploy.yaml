@@ -1,23 +1,23 @@
-apiVersion: apps/v1
 kind: Deployment
+apiVersion: apps/v1
 metadata:
-  name: fullstack-cart
-  namespace: fsmall-prod
+  name: fullstack-member
+  namespace: ${NAMESPACE}
   labels:
-    app: fullstack-cart
+    app: fullstack-member
 spec:
   selector:
     matchLabels:
-      app: fullstack-cart
+      app: fullstack-member
   replicas: 1
   template:
     metadata:
       labels:
-        app: fullstack-cart
+        app: fullstack-member
     spec:
       containers:
-        - name: fullstack-cart
-          image: $IMAGE
+        - name: fullstack-member
+          image: ${IMAGE}
           ports:
             - containerPort: 8080
           resources:
@@ -68,21 +68,21 @@ spec:
   progressDeadlineSeconds: 600
 
 ---
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: fullstack-cart
-  namespace: fsmall-prod
+  name: fullstack-member
+  namespace: ${NAMESPACE}
   labels:
-    app: fullstack-cart
+    app: fullstack-member
 spec:
   ports:
     - name: http
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20002
+      nodePort: 20005
   selector:
-    app: fullstack-cart
+    app: fullstack-member
   type: NodePort
   sessionAffinity: None

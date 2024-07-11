@@ -1,23 +1,22 @@
 apiVersion: apps/v1
-kind: Deployment
 metadata:
-  name: fullstack-auth
-  namespace: fsmall-test
+  name: fullstack-product
+  namespace: ${NAMESPACE}
   labels:
-    app: fullstack-auth
+    app: fullstack-product
 spec:
   selector:
     matchLabels:
-      app: fullstack-auth
+      app: fullstack-product
   replicas: 1
   template:
     metadata:
       labels:
-        app: fullstack-auth
+        app: fullstack-product
     spec:
       containers:
-        - name: fullstack-auth
-          image: $IMAGE
+        - name: fullstack-product
+          image: ${IMAGE}
           ports:
             - containerPort: 8080
           resources:
@@ -68,21 +67,21 @@ spec:
   progressDeadlineSeconds: 600
 
 ---
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: fullstack-auth
-  namespace: fsmall-test
+  name: fullstack-product
+  namespace: ${NAMESPACE}
   labels:
-    app: fullstack-auth
+    app: fullstack-product
 spec:
   ports:
     - name: http
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20001
+      nodePort: 20007
   selector:
-    app: fullstack-auth
+    app: fullstack-product
   type: NodePort
   sessionAffinity: None

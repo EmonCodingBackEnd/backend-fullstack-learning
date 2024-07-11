@@ -1,23 +1,23 @@
-apiVersion: apps/v1
 kind: Deployment
+apiVersion: apps/v1
 metadata:
-  name: renren-fast
-  namespace: fsmall-test
+  name: fullstack-order
+  namespace: ${NAMESPACE}
   labels:
-    app: renren-fast
+    app: fullstack-order
 spec:
   selector:
     matchLabels:
-      app: renren-fast
+      app: fullstack-order
   replicas: 1
   template:
     metadata:
       labels:
-        app: renren-fast
+        app: fullstack-order
     spec:
       containers:
-        - name: renren-fast
-          image: $IMAGE
+        - name: fullstack-order
+          image: ${IMAGE}
           ports:
             - containerPort: 8080
           resources:
@@ -68,21 +68,21 @@ spec:
   progressDeadlineSeconds: 600
 
 ---
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: renren-fast
-  namespace: fsmall-test
+  name: fullstack-order
+  namespace: ${NAMESPACE}
   labels:
-    app: renren-fast
+    app: fullstack-order
 spec:
   ports:
     - name: http
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20011
+      nodePort: 20006
   selector:
-    app: renren-fast
+    app: fullstack-order
   type: NodePort
   sessionAffinity: None

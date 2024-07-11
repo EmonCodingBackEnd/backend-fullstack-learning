@@ -1,23 +1,23 @@
-apiVersion: apps/v1
 kind: Deployment
+apiVersion: apps/v1
 metadata:
-  name: fullstack-gateway
-  namespace: fsmall-test
+  name: fullstack-coupon
+  namespace: ${NAMESPACE}
   labels:
-    app: fullstack-gateway
+    app: fullstack-coupon
 spec:
   selector:
     matchLabels:
-      app: fullstack-gateway
+      app: fullstack-coupon
   replicas: 1
   template:
     metadata:
       labels:
-        app: fullstack-gateway
+        app: fullstack-coupon
     spec:
       containers:
-        - name: fullstack-gateway
-          image: $IMAGE
+        - name: fullstack-coupon
+          image: ${IMAGE}
           ports:
             - containerPort: 8080
           resources:
@@ -68,21 +68,21 @@ spec:
   progressDeadlineSeconds: 600
 
 ---
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: fullstack-gateway
-  namespace: fsmall-test
+  name: fullstack-coupon
+  namespace: ${NAMESPACE}
   labels:
-    app: fullstack-gateway
+    app: fullstack-coupon
 spec:
   ports:
     - name: http
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20004
+      nodePort: 20003
   selector:
-    app: fullstack-gateway
+    app: fullstack-coupon
   type: NodePort
   sessionAffinity: None

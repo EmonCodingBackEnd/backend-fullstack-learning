@@ -1,23 +1,23 @@
-apiVersion: apps/v1
 kind: Deployment
+apiVersion: apps/v1
 metadata:
-  name: fullstack-member
-  namespace: fsmall-test
+  name: fullstack-seckill
+  namespace: ${NAMESPACE}
   labels:
-    app: fullstack-member
+    app: fullstack-seckill
 spec:
   selector:
     matchLabels:
-      app: fullstack-member
+      app: fullstack-seckill
   replicas: 1
   template:
     metadata:
       labels:
-        app: fullstack-member
+        app: fullstack-seckill
     spec:
       containers:
-        - name: fullstack-member
-          image: $IMAGE
+        - name: fullstack-seckill
+          image: ${IMAGE}
           ports:
             - containerPort: 8080
           resources:
@@ -68,21 +68,21 @@ spec:
   progressDeadlineSeconds: 600
 
 ---
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: fullstack-member
-  namespace: fsmall-test
+  name: fullstack-seckill
+  namespace: ${NAMESPACE}
   labels:
-    app: fullstack-member
+    app: fullstack-seckill
 spec:
   ports:
     - name: http
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20005
+      nodePort: 20008
   selector:
-    app: fullstack-member
+    app: fullstack-seckill
   type: NodePort
   sessionAffinity: None
