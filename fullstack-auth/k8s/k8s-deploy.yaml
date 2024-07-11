@@ -27,10 +27,13 @@ spec:
               memory: 10Mi
             limits:
               cpu: 500m
-              memory: 100Mi
+              memory: 300Mi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: IfNotPresent
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xms100m -Xmx100m -Xmn64m -Xss228k -XX:MetaspaceSize=64m -Dspring.profiles.active=prod"
 #          # 存活状态检查
 #          livenessProbe:
 #            httpGet:
