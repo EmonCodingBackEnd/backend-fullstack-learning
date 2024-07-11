@@ -1,3 +1,4 @@
+USE renren_fast;
 -- 菜单
 CREATE TABLE `sys_menu` (
   `menu_id` bigint NOT NULL AUTO_INCREMENT,
