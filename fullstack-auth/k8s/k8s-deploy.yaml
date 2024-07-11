@@ -27,7 +27,7 @@ spec:
               memory: 10Mi
             limits:
               cpu: 500m
-              memory: 300Mi
+              memory: 800Mi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: IfNotPresent
@@ -64,9 +64,9 @@ spec:
       terminationGracePeriodSeconds: 30
   strategy:
     type: RollingUpdate
-#    rollingUpdate:
-#      maxUnavailable: 1
-#      maxSurge: 1
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   revisionHistoryLimit: 10
   progressDeadlineSeconds: 600
 
