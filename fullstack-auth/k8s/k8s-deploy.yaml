@@ -31,39 +31,39 @@ spec:
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: IfNotPresent
-          # 存活状态检查
-          livenessProbe:
-            httpGet:
-              path: /actuator/health/liveness
-              port: 8080
-              scheme: HTTP
-            # pod 创建10s后启动第一次探测
-            initialDelaySeconds: 30
-            # 每隔10s启动一次探测
-            periodSeconds: 10
-            # 超时时间3s
-            timeoutSeconds: 3
-            # 成功1次即表示容器健康
-            successThreshold: 1
-            # 连续5次失败，则判定容器不健康，默认3次
-            failureThreshold: 5
-          # 就绪状态检查
-          readinessProbe:
-            httpGet:
-              path: /actuator/health/readiness
-              port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 50
-            periodSeconds: 10
-            timeoutSeconds: 3
+#          # 存活状态检查
+#          livenessProbe:
+#            httpGet:
+#              path: /actuator/health/liveness
+#              port: 8080
+#              scheme: HTTP
+#            # pod 创建10s后启动第一次探测
+#            initialDelaySeconds: 30
+#            # 每隔10s启动一次探测
+#            periodSeconds: 10
+#            # 超时时间3s
+#            timeoutSeconds: 3
+#            # 成功1次即表示容器健康
+#            successThreshold: 1
+#            # 连续5次失败，则判定容器不健康，默认3次
+#            failureThreshold: 5
+#          # 就绪状态检查
+#          readinessProbe:
+#            httpGet:
+#              path: /actuator/health/readiness
+#              port: 8080
+#              scheme: HTTP
+#            initialDelaySeconds: 50
+#            periodSeconds: 10
+#            timeoutSeconds: 3
       restartPolicy: Always
       # 优雅停机等待时间
       terminationGracePeriodSeconds: 30
   strategy:
     type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
+#    rollingUpdate:
+#      maxUnavailable: 1
+#      maxSurge: 1
   revisionHistoryLimit: 10
   progressDeadlineSeconds: 600
 
