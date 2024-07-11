@@ -81,7 +81,7 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20003
+      nodePort: 31003
   selector:
     app: fullstack-coupon
   type: NodePort

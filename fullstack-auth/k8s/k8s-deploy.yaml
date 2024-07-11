@@ -81,7 +81,7 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20001
+      nodePort: 31001
   selector:
     app: fullstack-auth
   type: NodePort

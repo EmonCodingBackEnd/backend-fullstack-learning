@@ -81,7 +81,7 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20002
+      nodePort: 31002
   selector:
     app: fullstack-cart
   type: NodePort

@@ -81,7 +81,7 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20006
+      nodePort: 31006
   selector:
     app: fullstack-order
   type: NodePort

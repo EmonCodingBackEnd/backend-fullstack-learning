@@ -81,7 +81,7 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20011
+      nodePort: 31012
   selector:
     app: renren-fast
   type: NodePort

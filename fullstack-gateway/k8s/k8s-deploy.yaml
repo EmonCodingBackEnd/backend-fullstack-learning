@@ -81,7 +81,7 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20004
+      nodePort: 31004
   selector:
     app: fullstack-gateway
   type: NodePort

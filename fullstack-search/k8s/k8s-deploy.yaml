@@ -81,7 +81,7 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-      nodePort: 20007
+      nodePort: 31008
   selector:
     app: fullstack-search
   type: NodePort
