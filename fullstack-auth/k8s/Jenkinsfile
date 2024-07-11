@@ -73,7 +73,7 @@ pipeline {
         NAMESPACE = "$DEPLOY_TO"
       }
       steps {
-        input(id: 'deploy-to-k8s-test', message: String.format('是否部署模块 %s 的 %s 镜像到测试环境？', params.MODULE_NAME, env.IMAGE), ok: '确定')
+        input(id: 'deploy-to-k8s-test', message: String.format('是否部署模块 %s 的 %s 镜像到 %s 环境？', params.MODULE_NAME, env.IMAGE, params.DEPLOY_TO), ok: '确定')
         container ('maven') {
           withCredentials([
               kubeconfigFile(
@@ -126,7 +126,7 @@ pipeline {
       }
       steps {
         sh 'printenv'
-        input(id: 'deploy-to-k8s-prod', message: String.format('是否部署模块 %s 的 %s 镜像到生产环境？', params.MODULE_NAME, env.IMAGE), ok: '确定')
+        input(id: 'deploy-to-k8s-prod', message: String.format('是否部署模块 %s 的 %s 镜像到 %s 环境？', params.MODULE_NAME, env.IMAGE, params.DEPLOY_TO), ok: '确定')
         container ('maven') {
           withCredentials([
               kubeconfigFile(
