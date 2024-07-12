@@ -64,9 +64,9 @@ spec:
       terminationGracePeriodSeconds: 30
   strategy:
     type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
+#    rollingUpdate:
+#      maxUnavailable: 1
+#      maxSurge: 1
   revisionHistoryLimit: 10
   progressDeadlineSeconds: 600
 
