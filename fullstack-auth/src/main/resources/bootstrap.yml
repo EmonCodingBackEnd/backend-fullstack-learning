@@ -1,18 +1,18 @@
-spring:
-  config:
-    activate:
-      on-profile: default
-  cloud:
-    nacos:
-      config:
-        server-addr: repo.emon.vip:8848
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  cloud:
-    nacos:
-      config:
-        server-addr: nacos.fsmall-project:8848
+#spring:
+#  config:
+#    activate:
+#      on-profile: default
+#  cloud:
+#    nacos:
+#      config:
+#        server-addr: repo.emon.vip:8848
+#
+#---
+#spring:
+#  config:
+#    activate:
+#      on-profile: prod
+#  cloud:
+#    nacos:
+#      config:
+#        server-addr: nacos.fsmall-project:8848
