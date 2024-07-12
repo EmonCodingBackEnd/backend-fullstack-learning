@@ -1,5 +1,7 @@
 FROM openjdk:8u212-jre-alpine
 MAINTAINER 问秋 liming2011071@163.com
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 EXPOSE 8080
 
 VOLUME /tmp
