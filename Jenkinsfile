@@ -66,7 +66,7 @@ pipeline {
     stage('部署到测试环境') {
       when {
         expression {
-          return params.DEPLOY_TO
+          return params.DEPLOY_TO && !params.TAG_NAME
         }
       }
       environment {
