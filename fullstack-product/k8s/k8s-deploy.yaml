@@ -32,7 +32,9 @@ spec:
             limits:
               cpu: 500m
               memory: 500Mi
+          # 容器的异常终止消息的路径，默认在 /dev/termination-log
           terminationMessagePath: /dev/termination-log
+          # 容器终止消息的来源路径和策略，默认 File
           terminationMessagePolicy: File
           imagePullPolicy: IfNotPresent
           # 就绪状态检查
