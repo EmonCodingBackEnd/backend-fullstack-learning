@@ -51,6 +51,11 @@
 	</properties>
 
 	<dependencies>
+		<!--
+		https://blog.csdn.net/qq_40977118/article/details/124387411
+		在SpringBoot2.6之后，Spring MVC 处理程序映射匹配请求路径的默认策略已从 AntPathMatcher 更改为PathPatternParser。如果需要切换为AntPathMatcher，官方给出的方法是配置spring.mvc.pathmatch.matching-strategy=ant_path_matcher
+		但是actuator endpoints在2.6之后也使用基于 PathPattern 的 URL 匹配，而且actuator endpoints的路径匹配策略无法通过配置属性进行配置，如果同时使用Actuator和Springfox，会导致程序启动失败，所以只是进行上面的设置是不行的。
+		-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
