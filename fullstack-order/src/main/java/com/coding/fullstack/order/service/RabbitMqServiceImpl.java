@@ -1,10 +1,11 @@
 package com.coding.fullstack.order.service;
 
+import java.io.IOException;
+
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.stereotype.Service;
 
 import com.coding.fullstack.order.entity.OrderEntity;
 import com.coding.fullstack.order.entity.OrderReturnReasonEntity;
@@ -12,15 +13,13 @@ import com.rabbitmq.client.Channel;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-
 /**
  * RabbitListener - 一般标注在类上，指定监听的队列
  * 
  * RabbitHandler - 标注在方法上，重载不同的消息类型
  */
 @Slf4j
-@Service
+//@Service
 @RabbitListener(queues = {"hello-java-queue"}) // 类+方法，标注在类上需要配合@RabbitHandler使用
 public class RabbitMqServiceImpl {
 
