@@ -6,6 +6,7 @@ import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +17,9 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 
 @Configuration
 public class ElasticsearchConfig {
+
+    @Value("${spring.profiles.active}")
+    private String profile;
 
     public static final RequestOptions COMMON_OPTIONS;
     static {
@@ -28,15 +32,23 @@ public class ElasticsearchConfig {
 
     @Bean
     public RestHighLevelClient esRestClient() {
-        RestHighLevelClient client =
-            new RestHighLevelClient(RestClient.builder(new HttpHost("repo.emon.vip", 9200, "http")));
+        String host = "192.168.32.116";
+        Integer port = 31533;
+        if ("prod".equals(profile)) {
+            host = "es-nodeport.fsmall-project";
+            port = 9200;
+        }
+        RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost(host, port, "http")));
         return client;
     }
 
     @Bean
     public ElasticsearchClient esClient() {
         // URL and API key
-        String serverUrl = "http://repo.emon.vip:9200";
+        String serverUrl = "http://192.168.32.116:31533";
+        if ("prod".equals(profile)) {
+            serverUrl = "http://es-nodeport.fsmall-project:9200";
+        }
         String apiKey = "VnVhQ2ZHY0JDZGJrU...";
 
         // Create the low-level client
