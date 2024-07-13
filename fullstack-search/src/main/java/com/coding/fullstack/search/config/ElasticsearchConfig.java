@@ -18,7 +18,7 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 @Configuration
 public class ElasticsearchConfig {
 
-    @Value("${spring.profiles.active}")
+    @Value("${spring.profiles.active:dev}")
     private String profile;
 
     public static final RequestOptions COMMON_OPTIONS;
