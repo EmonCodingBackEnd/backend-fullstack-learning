@@ -41,20 +41,24 @@ spec:
           # 就绪状态检查
           readinessProbe:
             httpGet:
-              path: /actuator/health/readiness
+              path: /renren-fast/actuator/health/readiness
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 100
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 3
+            # 成功1次即表示容器健康
+            successThreshold: 1
+            # 连续5次失败，则判定容器不健康，默认3次
+            failureThreshold: 5
           # 存活状态检查
           livenessProbe:
             httpGet:
-              path: /actuator/health/liveness
+              path: /renren-fast/actuator/health/liveness
               port: 8080
               scheme: HTTP
             # pod 创建10s后启动第一次探测
-            initialDelaySeconds: 100
+            initialDelaySeconds: 60
             # 每隔10s启动一次探测
             periodSeconds: 10
             # 超时时间3s
