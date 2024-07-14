@@ -44,7 +44,7 @@ spec:
               path: /actuator/health/readiness
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 120
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 3
             # 成功1次即表示容器健康
@@ -58,7 +58,7 @@ spec:
               port: 8080
               scheme: HTTP
             # pod 创建10s后启动第一次探测
-            initialDelaySeconds: 120
+            initialDelaySeconds: 60
             # 每隔10s启动一次探测
             periodSeconds: 10
             # 超时时间3s
