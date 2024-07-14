@@ -48,9 +48,9 @@ pipeline {
     }
 
     stage('推送最新镜像'){
-      when{
-         branch 'master'
-      }
+      // when{
+      //   branch 'master'
+      // }
       environment {
         LASTED_IMAGE = "$REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:latest"
       }
@@ -70,7 +70,7 @@ pipeline {
         }
       }
       environment {
-        IMAGE = "$IMAGE"
+        IMAGE = "$REGISTRY/$DOCKERHUB_NAMESPACE/$MODULE_NAME:latest"
         NAMESPACE = "$DEPLOY_TO"
       }
       steps {
