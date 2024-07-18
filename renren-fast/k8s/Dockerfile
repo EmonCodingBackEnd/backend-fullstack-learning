@@ -3,14 +3,12 @@ MAINTAINER 问秋 liming2011071@163.com
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # 安装字体工具包
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
-RUN apk add --no-cache fontconfig
+# 切成国内阿里云源
+RUN sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories
+# 安装中文字体 && 删除安装缓存包 && 刷新字体
+RUN apk add --update ttf-dejavu fontconfig && rm -rf /var/cache/apk/* && mkfontscale && mkfontdir && fc-cache
 # 添加宋体字体文件到容器中
-COPY dockerfiles/simsun.ttf /usr/share/fonts/SimSun.ttf
-# 配置字体环境变量
-RUN mkfontscale && mkfontdir && fc-cache -fv
-# 设置字体环境变量
-ENV FONTCONFIG_FILE=/etc/fonts/fonts.conf
+#COPY dockerfiles/simsun.ttf /usr/share/fonts/SimSun.ttf
 EXPOSE 8080
 
 VOLUME /tmp
