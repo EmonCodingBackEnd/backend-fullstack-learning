@@ -3,6 +3,7 @@ MAINTAINER 问秋 liming2011071@163.com
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # 安装字体工具包
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN apk add --no-cache fontconfig
 # 添加宋体字体文件到容器中
 COPY dockerfiles/simsun.ttf /usr/share/fonts/SimSun.ttf
