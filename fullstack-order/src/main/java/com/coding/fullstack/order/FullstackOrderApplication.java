@@ -14,6 +14,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * 1、引入aop-starter: spring-boot-starter-aop
  * 2、启用 @EnableAspectJAutoProxy(exposeProxy = true) // 开启aspectj动态代理，开启后动态代理都是aspectj创建的（即使没有接口也可以创建动态代理）
  * 3、使用代理对象来调用事务方法
+ * 通过 AopContext.currentProxy() 实现内部调用，包含事务。
  */
 @EnableAspectJAutoProxy(exposeProxy = true)
 @MapperScan("com.coding.fullstack.order.dao")
